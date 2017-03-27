@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cnmts.data.dao.NativeDataMapper">
+	
+	<!-- 查询carNo所在的编组 -->
+	<select id="getGroupCarByCarNo" resultType="com.cnmts.traffic.bean.GroupCar">
+		SELECT
+			tab_group.groupId,
+			tab_car.carId,
+			tab_car.carNo
+		FROM
+			tab_car,
+			tab_group_car,
+			tab_group
+		WHERE
+			tab_car.carId = tab_group_car.carId
+		AND tab_group_car.groupId = tab_group.groupId
+		AND tab_group.groupState = 1
+		AND tab_car.carNo = #{carNo}
+	</select>
+	
+	<!-- 保存报警信息 -->
+	<insert id="saveAlarm" useGeneratedKeys="true" keyColumn="alarmId" keyProperty="alarmId">
+		INSERT INTO tab_alarm (
+			groupId,
+			carId,
+			alarmFlag,
+			alarmContent,
+			createTime,
+			alarmTime
+		) VALUES (
+			#{groupId},
+			#{carId},
+			#{alarmFlag},
+			#{alarmContent},
+			#{createTime},
+			#{alarmTime}
+		)
+	</insert>
+	
+	<insert id="saveBatchData" useGeneratedKeys="true" keyColumn="batchId" keyProperty="batchId">
+		INSERT INTO tab_data_batch (
+			groupId,
+			carId,
+			batchTime,
+			createTime
+		) VALUES (
+			#{groupId},
+			#{carId},
+			#{batchTime},
+			#{createTime}
+		)
+	</insert>
+	
+	<insert id="saveSensorData">
+		INSERT INTO tab_sensordata (
+			batchId,
+			sensorType,
+			dataTimestamp,
+			dataValue
+		) VALUES
+			<foreach collection="list" index="index" item="dataBatch" separator=",">
+				(#{dataBatch.batchId},#{dataBatch.sensorType},#{dataBatch.dataTimestamp},#{dataBatch.dataValue})
+			</foreach>
+	</insert>
+</mapper>
+ 

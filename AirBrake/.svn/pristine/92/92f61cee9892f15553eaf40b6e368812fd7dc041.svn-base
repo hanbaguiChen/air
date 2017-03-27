@@ -1,0 +1,24 @@
+package com.cnmts.baseinfo.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cnmts.traffic.bean.Car;
+
+public interface CarMapper {
+
+	List<Car> getCarListByPage(Map<String, Object> search);
+
+	Car getCarByCarId(@Param("carId") int carId);
+
+	Car getCarByCarNo(@Param("carNo") String carNo);
+
+	void addCar(Car car);
+
+	void updateCar(Car car);
+
+	List<Car> getCarsByTrainId(@Param("trainId") int trainId);
+
+}

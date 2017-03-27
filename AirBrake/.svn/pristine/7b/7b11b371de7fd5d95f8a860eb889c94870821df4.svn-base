@@ -1,0 +1,187 @@
+/*
+*TabGrorp.java
+* Compyright(C) 2010-2019  千里时空
+* All rights reserved.
+* ---------------------------
+* 2017-01-10 Created
+*/
+package com.cnmts.traffic.bean;
+
+import java.util.Date;
+
+public class TabGrorp {
+    /**
+     * 编组id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer groupId;
+
+    /**
+     * 编组时间
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Date createTime;
+
+    /**
+     * zigbee网络id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private String zigbeeId;
+
+    /**
+     * zigbee网络key
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private String zigbeeKey;
+
+    /**
+     * 始发站
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer begStationId;
+
+    /**
+     * 终到站
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer endStatuibId;
+
+    /**
+     * 操作人
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer opUserId;
+
+    /**
+     * 编组id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    /**
+     * 编组id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    /**
+     * 编组时间
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    /**
+     * 编组时间
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    /**
+     * zigbee网络id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public String getZigbeeId() {
+        return zigbeeId;
+    }
+
+    /**
+     * zigbee网络id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setZigbeeId(String zigbeeId) {
+        this.zigbeeId = zigbeeId;
+    }
+
+    /**
+     * zigbee网络key
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public String getZigbeeKey() {
+        return zigbeeKey;
+    }
+
+    /**
+     * zigbee网络key
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setZigbeeKey(String zigbeeKey) {
+        this.zigbeeKey = zigbeeKey;
+    }
+
+    /**
+     * 始发站
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getBegStationId() {
+        return begStationId;
+    }
+
+    /**
+     * 始发站
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setBegStationId(Integer begStationId) {
+        this.begStationId = begStationId;
+    }
+
+    /**
+     * 终到站
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getEndStatuibId() {
+        return endStatuibId;
+    }
+
+    /**
+     * 终到站
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setEndStatuibId(Integer endStatuibId) {
+        this.endStatuibId = endStatuibId;
+    }
+
+    /**
+     * 操作人
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getOpUserId() {
+        return opUserId;
+    }
+
+    /**
+     * 操作人
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setOpUserId(Integer opUserId) {
+        this.opUserId = opUserId;
+    }
+}

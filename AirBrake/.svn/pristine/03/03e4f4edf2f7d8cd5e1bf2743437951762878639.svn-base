@@ -1,0 +1,143 @@
+/*
+*TabTrain.java
+* Compyright(C) 2010-2019  千里时空
+* All rights reserved.
+* ---------------------------
+* 2017-01-10 Created
+*/
+package com.cnmts.traffic.bean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class TabTrain implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2622638297976923781L;
+
+	/**
+     * 列车ID
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    private int trainId;
+
+    /**
+     * 列车名称
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    private String trainName;
+
+    /**
+     * 最后一次编组时间
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    private Date lastGroupTime;
+
+    /**
+     * 最后一次编组id
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    private int lastGroupId;
+
+    /**
+     * 删除标记，0正常1已删除
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    private Short deleteStatus;
+
+    /**
+     * 列车ID
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public int getTrainId() {
+        return trainId;
+    }
+
+    /**
+     * 列车ID
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public void setTrainId(int trainId) {
+        this.trainId = trainId;
+    }
+
+    /**
+     * 列车名称
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public String getTrainName() {
+        return trainName;
+    }
+
+    /**
+     * 列车名称
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public void setTrainName(String trainName) {
+        this.trainName = trainName;
+    }
+
+    /**
+     * 最后一次编组时间
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public Date getLastGroupTime() {
+        return lastGroupTime;
+    }
+
+    /**
+     * 最后一次编组时间
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public void setLastGroupTime(Date lastGroupTime) {
+        this.lastGroupTime = lastGroupTime;
+    }
+
+    /**
+     * 最后一次编组id
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public int getLastGroupId() {
+        return lastGroupId;
+    }
+
+    /**
+     * 最后一次编组id
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public void setLastGroupId(int lastGroupId) {
+        this.lastGroupId = lastGroupId;
+    }
+
+    /**
+     * 删除标记，0正常1已删除
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public Short getDeleteStatus() {
+        return deleteStatus;
+    }
+
+    /**
+     * 删除标记，0正常1已删除
+     *
+     * @mbggenerated Tue Jan 10 15:29:34 CST 2017
+     */
+    public void setDeleteStatus(Short deleteStatus) {
+        this.deleteStatus = deleteStatus;
+    }
+}

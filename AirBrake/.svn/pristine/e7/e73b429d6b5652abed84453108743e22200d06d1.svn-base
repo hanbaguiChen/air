@@ -1,0 +1,14 @@
+package com.cnmts.alarm.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cnmts.alarm.bean.Alarm;
+
+public interface AlarmMapper {
+
+	List<Alarm> getAlarmListByPage(Map<String, Object> search);
+
+	void updateAlarmState(Alarm alarm);
+
+}

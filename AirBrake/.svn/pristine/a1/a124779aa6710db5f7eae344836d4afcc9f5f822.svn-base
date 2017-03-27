@@ -1,0 +1,36 @@
+package com.cnmts.baseinfo.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cnmts.baseinfo.dao.GroupMapper;
+import com.cnmts.traffic.bean.Group;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+public class GroupService {
+
+	@Autowired
+	private GroupMapper groupMapper;
+
+	/**
+	 * 分页查询编组
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月22日 上午10:24:41
+	 * @param page
+	 * @param search
+	 * @return
+	 */
+	public PageInfo<Group> getGroupList(PageInfo<Group> page, Map<String, Object> search) {
+		PageHelper.startPage(page.getPageNum(), page.getPageSize());
+		List<Group> groupList = groupMapper.getGroupList(search);
+		page = new PageInfo<Group>(groupList);
+		return page;
+	}
+
+}

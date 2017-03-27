@@ -1,0 +1,80 @@
+/*
+*TabStation.java
+* Compyright(C) 2010-2019  千里时空
+* All rights reserved.
+* ---------------------------
+* 2017-01-10 Created
+*/
+package com.cnmts.traffic.bean;
+
+public class TabStation {
+    /**
+     * 车站id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer stationId;
+
+    /**
+     * 车站名称
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private String stationName;
+
+    private String province;
+
+    private String city;
+
+    /**
+     * 车站id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getStationId() {
+        return stationId;
+    }
+
+    /**
+     * 车站id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setStationId(Integer stationId) {
+        this.stationId = stationId;
+    }
+
+    /**
+     * 车站名称
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public String getStationName() {
+        return stationName;
+    }
+
+    /**
+     * 车站名称
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setStationName(String stationName) {
+        this.stationName = stationName;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+}

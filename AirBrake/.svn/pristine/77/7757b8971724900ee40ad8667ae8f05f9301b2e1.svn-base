@@ -1,0 +1,63 @@
+package com.cnmts.traffic.bean;
+
+/**
+ * 车厢报警信息
+ * 
+ * @author 王璞
+ * @date 2017年2月6日 下午2:45:26
+ * @version 1.0
+ */
+public class CarAlarm extends Car {
+
+	private static final long serialVersionUID = 2907324962421125427L;
+	private int alarmId;
+	/** 1正常，2报警 */
+	private int alarmState;
+	/** 报警flag */
+	private int alarmFlag;
+	/** 报警内容 */
+	private String alarmContent;
+	/** 报警时间 */
+	private long alarmTimestamp;
+
+	public int getAlarmId() {
+		return alarmId;
+	}
+
+	public void setAlarmId(int alarmId) {
+		this.alarmId = alarmId;
+	}
+
+	public int getAlarmState() {
+		return alarmState;
+	}
+
+	public void setAlarmState(int alarmState) {
+		this.alarmState = alarmState;
+	}
+
+	public int getAlarmFlag() {
+		return alarmFlag;
+	}
+
+	public void setAlarmFlag(int alarmFlag) {
+		this.alarmFlag = alarmFlag;
+	}
+
+	public String getAlarmContent() {
+		return alarmContent;
+	}
+
+	public void setAlarmContent(String alarmContent) {
+		this.alarmContent = alarmContent;
+	}
+
+	public long getAlarmTimestamp() {
+		return alarmTimestamp;
+	}
+
+	public void setAlarmTimestamp(long alarmTimestamp) {
+		this.alarmTimestamp = alarmTimestamp;
+	}
+
+}

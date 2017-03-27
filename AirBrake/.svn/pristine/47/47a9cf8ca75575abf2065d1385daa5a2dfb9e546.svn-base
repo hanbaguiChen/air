@@ -1,0 +1,55 @@
+package com.cnmts.data.bean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class DataBatch implements Serializable {
+
+	private static final long serialVersionUID = 6250163869350493785L;
+	private int batchId;
+	private int groupId;
+	private int carId;
+	private Date batchTime;
+	private Date createTime;
+
+	public int getBatchId() {
+		return batchId;
+	}
+
+	public void setBatchId(int batchId) {
+		this.batchId = batchId;
+	}
+
+	public int getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+
+	public int getCarId() {
+		return carId;
+	}
+
+	public void setCarId(int carId) {
+		this.carId = carId;
+	}
+
+	public Date getBatchTime() {
+		return batchTime;
+	}
+
+	public void setBatchTime(Date batchTime) {
+		this.batchTime = batchTime;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+}

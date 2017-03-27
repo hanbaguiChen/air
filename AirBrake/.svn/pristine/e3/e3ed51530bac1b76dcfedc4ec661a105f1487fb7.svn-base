@@ -1,0 +1,53 @@
+package com.cnmts.alarm.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnmts.alarm.bean.Alarm;
+import com.cnmts.alarm.service.AlarmService;
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.traffic.bean.Train;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 报警信息控制器
+ * 
+ * @date 2017年1月10日 下午5:01:48
+ * @version 1.0
+ */
+@Controller
+@RequestMapping(value = { "/alarm" })
+public class AlarmController {
+
+	@Autowired
+	private AlarmService alarmService;
+
+	/**
+	 * 分页查询报警信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月12日
+	 * @param page
+	 * @param train
+	 * @return
+	 */
+	@RequestMapping(value = { "/getAlarmListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<Alarm>> getAlarmListByPage(PageInfo<Alarm> page, Alarm alarm) {
+		JsonResult<PageInfo<Alarm>> jsonResult = new JsonResult<PageInfo<Alarm>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+		/*if (StringUtils.isNotEmpty(train.getTrainName())) {
+			search.put("trainName", train.getTrainName());
+		}*/
+		PageInfo<Alarm> pageInfo = alarmService.getAlarmListByPage(page, search);
+		jsonResult.setObj(pageInfo);
+		return jsonResult;
+	}
+
+}

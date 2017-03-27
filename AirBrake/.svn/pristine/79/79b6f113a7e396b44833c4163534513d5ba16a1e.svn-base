@@ -1,0 +1,21 @@
+package com.cnmts.traffic.bean;
+
+import java.io.Serializable;
+
+public class GroupCar extends Car implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4207192936367552355L;
+	private int groupId;
+
+	public int getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+
+}

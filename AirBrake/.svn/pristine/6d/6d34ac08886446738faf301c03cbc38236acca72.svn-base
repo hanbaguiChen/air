@@ -1,0 +1,54 @@
+package com.cnmts.alarm.bean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class AlarmDeal implements Serializable{
+	
+	private static final long serialVersionUID = 2612632300642120789L;
+	private int dealId;
+	/** 处置内容 */
+	private String dealContent;
+	/** 处理人 */
+	private int dealUserId;
+	/** 处置时间*/
+	private Date dealtime;
+	/** 关联报警Id */
+	private int alarmId;
+	public int getDealId() {
+		return dealId;
+	}
+	public void setDealId(int dealId) {
+		this.dealId = dealId;
+	}
+	public String getDealContent() {
+		return dealContent;
+	}
+	public void setDealContent(String dealContent) {
+		this.dealContent = dealContent;
+	}
+	public int getDealUserId() {
+		return dealUserId;
+	}
+	public void setDealUserId(int dealUserId) {
+		this.dealUserId = dealUserId;
+	}
+	
+	public Date getDealtime() {
+		return dealtime;
+	}
+	public void setDealtime(Date dealtime) {
+		this.dealtime = dealtime;
+	}
+	public int getAlarmId() {
+		return alarmId;
+	}
+	public void setAlarmId(int alarmId) {
+		this.alarmId = alarmId;
+	}
+	
+	
+	
+	
+
+}

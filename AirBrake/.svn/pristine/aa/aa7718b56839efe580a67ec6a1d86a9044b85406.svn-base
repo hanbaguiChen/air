@@ -1,0 +1,96 @@
+package com.cnmts.data.service;
+
+import java.util.Iterator;
+import java.util.Queue;
+
+import org.springframework.stereotype.Service;
+
+import com.cnmts.data.bean.AlarmData;
+import com.cnmts.data.bean.NetWorkFeedback;
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.CarAlarm;
+
+/**
+ * 与JNI数据交互处理
+ * 
+ * @author 王璞
+ * @date 2017年1月19日 上午9:46:01
+ * @version 1.0
+ */
+@Service
+public class NativeDataServiceImpl extends NativeDataService {
+
+	@Override
+	public void initData() {
+		super.initData();
+	}
+
+	/**
+	 * 查询报警列表
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月11日 上午10:09:59
+	 * @param groupId
+	 *            编组ID
+	 * @return
+	 */
+	public Queue<AlarmData> getAlarmListByGroupId(int groupId) {
+		return super.alarmQueueMap.get(groupId);
+	}
+
+	/**
+	 * 处理报警
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月19日 上午9:49:00
+	 * @param alarmId
+	 */
+	public void dealAlarmByAlarmId(int groupId, int alarmId) {
+		Queue<AlarmData> queue = super.alarmQueueMap.get(groupId);
+		if (queue != null) {
+			for (Iterator<AlarmData> iterator = queue.iterator(); iterator.hasNext();) {
+				AlarmData alarmData = iterator.next();
+				if (alarmData.getAlarmId() == alarmId) {
+					queue.remove(alarmData);// 从报警队列中移除
+					/*CarAlarm carAlarm = super.carStateMap.get(alarmData.getCarNo());
+					if (carAlarm != null) {
+						if (carAlarm.getAlarmId() == alarmId) {
+							carAlarm.setAlarmState(1);// 如果车辆对应的报警已处理，将车辆状态置为正常
+						}
+					}*/
+					Car car = super.carStateMap.get(alarmData.getCarNo());
+					if (car != null) {
+						if (car.getAlarmId() == alarmId) {
+							car.setAlarmState(1);
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * 查询车厢状态/在离线状态/报警状态
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月19日 上午9:46:58
+	 * @param carNo
+	 * @return
+	 */
+	public Car getCarStateByCarNo(String carNo) {
+		return super.carStateMap.get(carNo);
+	}
+
+	/**
+	 * 查询组网/解网进度
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月22日 上午11:20:08
+	 * @param msgNo
+	 * @return
+	 */
+	public NetWorkFeedback getNetWorkFeedbackByMsgNo(int msgNo) {
+		return super.netWorkFeedbackMap.get(msgNo);
+	}
+}

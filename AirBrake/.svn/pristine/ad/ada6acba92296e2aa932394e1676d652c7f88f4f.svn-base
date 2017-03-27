@@ -1,0 +1,61 @@
+package com.cnmts.data.bean;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+/**
+ * 
+ * @author 王璞
+ * @date 2017年1月19日 上午10:33:12
+ * @version 1.0
+ */
+public class SensorDataBatch implements Serializable {
+
+	private static final long serialVersionUID = -5135578043130553701L;
+	private int sensorDataId;
+	private int batchId;
+	private int sensorType;
+	private long dataTimestamp;
+	private BigDecimal dataValue;
+
+	public int getSensorDataId() {
+		return sensorDataId;
+	}
+
+	public void setSensorDataId(int sensorDataId) {
+		this.sensorDataId = sensorDataId;
+	}
+
+	public int getBatchId() {
+		return batchId;
+	}
+
+	public void setBatchId(int batchId) {
+		this.batchId = batchId;
+	}
+
+	public int getSensorType() {
+		return sensorType;
+	}
+
+	public void setSensorType(int sensorType) {
+		this.sensorType = sensorType;
+	}
+
+	public long getDataTimestamp() {
+		return dataTimestamp;
+	}
+
+	public void setDataTimestamp(long dataTimestamp) {
+		this.dataTimestamp = dataTimestamp;
+	}
+
+	public BigDecimal getDataValue() {
+		return dataValue;
+	}
+
+	public void setDataValue(BigDecimal dataValue) {
+		this.dataValue = dataValue;
+	}
+
+}

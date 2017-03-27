@@ -1,0 +1,140 @@
+package com.cnmts.alarm.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnmts.alarm.bean.Alarm;
+import com.cnmts.alarm.bean.AlarmDeal;
+import com.cnmts.alarm.service.AlarmDealService;
+import com.cnmts.alarm.service.AlarmService;
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.common.exception.InvalidDataException;
+import com.cnmts.data.service.NativeDataServiceImpl;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 报警信息控制器
+ * 
+ * @date 2017年1月10日 下午5:01:48
+ * @version 1.0
+ */
+@Controller
+@RequestMapping(value = { "/alarm" })
+public class AlarmController {
+
+	@Autowired
+	private AlarmService alarmService;
+	@Autowired
+	private AlarmDealService alarmDealService;
+	@Autowired
+	private NativeDataServiceImpl nativeDataServiceImpl;
+
+	/**
+	 * 分页查询报警信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月12日
+	 * @param page
+	 * @param train
+	 * @return
+	 */
+	@RequestMapping(value = { "/getAlarmListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<Alarm>> getAlarmListByPage(PageInfo<Alarm> page, Alarm alarm) {
+		JsonResult<PageInfo<Alarm>> jsonResult = new JsonResult<PageInfo<Alarm>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+
+		if (StringUtils.isNotEmpty(alarm.getTrainName())) {
+			search.put("trainName", alarm.getTrainName());
+		}
+		if (alarm.getCarId() > 0) {
+			search.put("carId", alarm.getCarId());
+		}
+		if (alarm.getGroupId() > 0) {
+			search.put("groupId", alarm.getGroupId());
+		}
+		if (alarm.getTrainId() > 0) {
+			search.put("trainId", alarm.getTrainId());
+		}
+		PageInfo<Alarm> pageInfo = alarmService.getAlarmListByPage(page, search);
+		jsonResult.setObj(pageInfo);
+		return jsonResult;
+	}
+
+	/**
+	 * 修改警报处理状态并移除报警信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月13日
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping(value = { "/updateAlarmState" })
+	@ResponseBody
+	public JsonResult<Boolean> updateAlarmState(Alarm alarm) {
+		alarmService.updateAlarmState(alarm);
+		nativeDataServiceImpl.dealAlarmByAlarmId(alarm.getGroupId(), alarm.getAlarmId());
+		return new JsonResult<Boolean>(true);
+	}
+
+	/**
+	 * 通过alarmiD获取报警信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年2月6日
+	 * @param alarmId
+	 * @return
+	 */
+	@RequestMapping(value = { "getAlarmByAlarmId" })
+	@ResponseBody
+	public JsonResult<Alarm> getAlarmByAlarmId(int alarmId) {
+		Alarm alarm = alarmService.getAlarmByAlarmId(alarmId);
+		return new JsonResult<Alarm>(alarm);
+	}
+
+	/**
+	 * 保存报警处理信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年2月7日
+	 * @param alarmDeal
+	 * @return
+	 * @throws InvalidDataException
+	 */
+	@RequestMapping(value = { "saveDeal" })
+	@ResponseBody
+	public JsonResult<?> saveDeal(AlarmDeal alarmDeal) throws InvalidDataException {
+		if (alarmDeal == null) {
+			throw new InvalidDataException();
+		}
+		JsonResult<Boolean> jsonResult = new JsonResult<Boolean>();
+		alarmDealService.saveDealAlarm(alarmDeal);
+		jsonResult.setObj(true);
+		return jsonResult;
+	}
+
+	/**
+	 * 通过alarmId获取报警处理信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年2月7日
+	 * @param alarmId
+	 * @return
+	 */
+	@RequestMapping(value = { "getDealByAlarmId" })
+	@ResponseBody
+	public JsonResult<AlarmDeal> getDealByAlarmId(@RequestParam(defaultValue = "-1") int alarmId) {
+		AlarmDeal alarmDeal = new AlarmDeal();
+		if (alarmId > 0) {
+			alarmDeal = alarmDealService.getDealByAlarmId(alarmId);
+		}
+		return new JsonResult<AlarmDeal>(alarmDeal);
+	}
+}

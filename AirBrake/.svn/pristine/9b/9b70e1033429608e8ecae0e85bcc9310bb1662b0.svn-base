@@ -1,0 +1,272 @@
+package com.cnmts.common.excel;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFHyperlink;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import com.cnmts.common.util.StringUtil;
+
+public class ExcelUtil {
+
+	private Workbook workbook = null;
+	private CellStyle dateFormatCellTyle = null;
+	public static final String rowNum = "{{#rowNum#}}";
+	public static final String replaceFlag = "{{#_#}}";
+	private short[] formater;// 每列的格式
+	private String format = null;
+
+	/********** 内容格式 START ************/
+	public static final short HYPERLINK = -1;
+
+	/********** 内容格式 END ************/
+
+	public ExcelUtil(Workbook workbook, short[] formater, String format) {
+		this.workbook = workbook;
+		this.formater = formater;
+		this.format = format;
+	}
+
+	/**
+	 * 设置列的值
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月16日 下午4:01:06
+	 * @param cell
+	 * @param object
+	 * @param strFormat
+	 */
+	public void setValue(Cell cell, Object object, String strFormat) {
+		int columnIndex = cell.getColumnIndex();
+		if (strFormat == null) {
+			if (object instanceof String) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				String value = (String) object;
+				cell.setCellValue(value);
+			}
+			if (object instanceof Double) {
+				double value = (double) object;
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(value);
+			}
+			if (object instanceof Float) {
+				float value = (float) object;
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(value);
+			}
+			if (object instanceof Integer) {
+				int value = (int) object;
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(value);
+			}
+			if (object instanceof Date) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue((Date) object);
+				if (dateFormatCellTyle == null) {
+					CreationHelper createHelper = workbook.getCreationHelper();
+					dateFormatCellTyle = workbook.createCellStyle();
+					dateFormatCellTyle.setDataFormat(createHelper.createDataFormat().getFormat(format));
+				}
+				cell.setCellStyle(dateFormatCellTyle);
+			}
+		} else {
+			if (object instanceof String) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				String value = (String) object;
+				value = strFormat.replace(replaceFlag, value);
+				cell.setCellValue(value);
+			}
+			if (object instanceof Double) {
+				double value = (double) object;
+				String valueStr = strFormat.replace(replaceFlag, String.valueOf(value));
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(valueStr);
+			}
+			if (object instanceof Float) {
+				float value = (float) object;
+				String valueStr = strFormat.replace(replaceFlag, String.valueOf(value));
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(valueStr);
+			}
+			if (object instanceof Integer) {
+				int value = (int) object;
+				String valueStr = strFormat.replace(replaceFlag, String.valueOf(value));
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(valueStr);
+			}
+			if (object instanceof Date) {
+				Date value = (Date) object;
+				String valueStr = com.cnmts.common.util.DateUtil.date2String(value, format);
+				valueStr = strFormat.replace(replaceFlag, valueStr);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(valueStr);
+			}
+		}
+		if (formater != null) {
+			int format = formater[columnIndex];
+			if (format == HYPERLINK) {// 超链接
+				HSSFHyperlink hssfHyperlink = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
+				hssfHyperlink.setAddress(cell.getStringCellValue());
+				cell.setHyperlink(hssfHyperlink);
+
+				// 设置蓝色
+				CellStyle linkStyle = workbook.createCellStyle();
+				Font cellFont = workbook.createFont();
+				cellFont.setUnderline((byte) 1);
+				cellFont.setColor(HSSFColor.BLUE.index);
+				linkStyle.setFont(cellFont);
+				cell.setCellStyle(linkStyle);
+			}
+		}
+	}
+
+	/**
+	 * 解析表达式
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月18日 上午9:56:53
+	 * @param el
+	 * @return
+	 */
+	public static ExcelRowFormat analy(String el) {
+		// 属性名称
+		String propertyName = el;
+		// 属性的子属性名称
+		String childPropertyName = null;
+		// 如果是集合/数组，角标
+		int index = -1;
+		String strFormat = null;
+
+		if (propertyName.contains(ExcelUtil.rowNum)) {// 需要序号
+			strFormat = ExcelUtil.rowNum;
+			propertyName = ExcelUtil.rowNum;
+		} else {
+			if (!propertyName.startsWith("{{") || !propertyName.endsWith("}}")) {
+				// 不是以{{开头，或不是以}}结尾，需要格式化
+				propertyName = StringUtils.substringBetween(propertyName, "{{", "}}");
+				strFormat = el.replace("{{" + propertyName + "}}", ExcelUtil.replaceFlag);
+			} else {
+				propertyName = StringUtils.removeStart(propertyName, "{{");
+				propertyName = StringUtils.removeEnd(propertyName, "}}");
+			}
+			if (propertyName.contains(".")) {// 属性是个对象
+				String[] splitArray = StringUtils.split(propertyName, ".");
+				propertyName = splitArray[0];
+				childPropertyName = splitArray[1];
+				if (StringUtil.containsBoth(propertyName, "[", "]")) {// 属性是个数组
+					index = Integer.parseInt(StringUtils.substringBetween(propertyName, "[", "]"));
+					propertyName = StringUtils.substringBefore(propertyName, "[");
+				}
+			}
+		}
+
+		ExcelRowFormat excelRowFormat = new ExcelRowFormat();
+		excelRowFormat.setPropertyName(propertyName);
+		excelRowFormat.setChildPropertyName(childPropertyName);
+		excelRowFormat.setIndex(index);
+		excelRowFormat.setStrFormat(strFormat);
+		return excelRowFormat;
+	}
+
+	/**
+	 * 得到字段的值
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月18日 上午10:01:39
+	 * @param instance
+	 * @param propertyName
+	 * @return
+	 */
+	public static Object getFieldValue(Object instance, String propertyName) {
+		if (StringUtils.isEmpty(propertyName)) {
+			return null;
+		}
+		Object object = null;
+		try {
+			// 根据属性名称，通过反射获取Field
+			Field entityField = instance.getClass().getDeclaredField(propertyName);
+			if (!entityField.isAccessible()) {
+				entityField.setAccessible(true);
+			}
+			object = entityField.get(instance);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return object;
+	}
+
+	/**
+	 * 追加一行
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月5日 上午10:44:29
+	 * @param list
+	 * @param workbook
+	 */
+	public static void appendRow(List<Object> list, Workbook workbook) {
+		ExcelUtil excelUtil = new ExcelUtil(workbook, null, null);
+		Sheet sheet = workbook.getSheetAt(0);
+		int lastRowNum = sheet.getLastRowNum();
+		Row row = sheet.createRow(++lastRowNum);
+		if (list != null) {
+			for (int i = 0; i < list.size(); i++) {
+				Cell cell = row.createCell(i);
+				excelUtil.setValue(cell, list.get(i), null);
+			}
+		}
+	}
+
+	/**
+	 * 追加一列
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月5日 上午11:27:08
+	 * @param list
+	 * @param workbook
+	 */
+	public static void appendCell(List<Object> list, Workbook workbook) {
+		ExcelUtil excelUtil = new ExcelUtil(workbook, null, null);
+
+		Sheet sheetAt = workbook.getSheetAt(0);
+		int lastRowNum = sheetAt.getLastRowNum();
+		for (int i = 0; i < lastRowNum + 1; i++) {
+			Row row = sheetAt.getRow(i);
+
+			short lastCellNum = row.getLastCellNum();
+			Cell cell = row.createCell(lastCellNum);
+			excelUtil.setValue(cell, list.get(i), null);
+		}
+	}
+
+	/**
+	 * Excel 转 ByteArrayOutputStream
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月5日 上午10:45:33
+	 * @param workbook
+	 * @return
+	 */
+	public static ByteArrayOutputStream workBook2BAOS(Workbook workbook) {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			workbook.write(outputStream);
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return outputStream;
+	}
+
+}

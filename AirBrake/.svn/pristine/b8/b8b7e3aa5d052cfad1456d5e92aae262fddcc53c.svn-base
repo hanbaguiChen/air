@@ -1,0 +1,27 @@
+package com.cnmts.system;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
+import com.cnmts.common.util.CiphertextUtil;
+import com.cnmts.common.util.HttpClientUtils;
+import com.cnmts.common.util.JsonUtil;
+
+public class UserTest {
+
+	@Test
+	public void userLogin() {
+		String userName = "admin";
+		String passWord = CiphertextUtil.passAlgorithmsCiphering("123456", CiphertextUtil.MD5);
+		String url = "http://localhost:8080/AirBrake/user/userLogin";
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("loginName", userName);
+		map.put("loginPassword", passWord);
+		String doPost = HttpClientUtils.doPost(url, map);
+		String format = JsonUtil.format(doPost);
+		System.out.println(format);
+	}
+
+}

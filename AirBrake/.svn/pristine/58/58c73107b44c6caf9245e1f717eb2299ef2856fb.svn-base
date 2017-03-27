@@ -1,0 +1,37 @@
+package com.cnmts.data.bean;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * 传感器采集
+ * 
+ * @author 王璞
+ * @date 2017年1月18日 下午3:06:29
+ * @version 1.0
+ */
+public class SensorData implements Serializable {
+
+	private static final long serialVersionUID = 8902766061842452869L;
+	/** 车厢编号 */
+	private String carNo;
+	/** 传感器数据 */
+	private List<SensorDataSub> dataSubs;
+
+	public String getCarNo() {
+		return carNo;
+	}
+
+	public void setCarNo(String carNo) {
+		this.carNo = carNo;
+	}
+
+	public List<SensorDataSub> getDataSubs() {
+		return dataSubs;
+	}
+
+	public void setDataSubs(List<SensorDataSub> dataSubs) {
+		this.dataSubs = dataSubs;
+	}
+
+}

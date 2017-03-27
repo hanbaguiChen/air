@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.alarm.dao.AlarmMapper">
+  <!--  <resultMap type="com.cnmts.alarm.bean.Alarm" id="alarmGroupMap">
+		<id property="alarmId" column="alarmId"/>
+		<result property="alarmContent" column="alarmContent"/>
+		<result property="groupId" column="groupId"/>
+		<result property="carId" column="carId"/>
+		<result property="alarmFlag" column="alarmFlag"/>
+		<result property="alarmContent" column="alarmContent"/>
+		<result property="createTime" column="createTime"/>
+		<result property="alarmTime" column="alarmTime"/>
+		<result property="dealState" column="dealState"/>
+		<association property="groupCar" javaType="com.cnmts.traffic.bean.GroupCar">
+			<id property="groupCarId" column="groupCarId"/>
+			<result property="groupId" column="groupId"/>
+			<result property="carId" column="carId"/>
+			<result property="carSort" column="carSort"/>
+		</association>
+		
+	</resultMap> -->
+	
+	<!-- 分页查询车次信息 -->
+	<select id="getAlarmListByPage" resultType="com.cnmts.alarm.bean.Alarm">
+		SELECT
+			tab_alarm.alarmId,
+			tab_train.trainId,
+			tab_train.trainName,
+			tab_alarm.groupId,
+			tab_alarm.carId,
+			tab_car.carNo,
+			view_group_car.carSort,
+			tab_alarm.alarmFlag,
+			tab_alarm.alarmContent,
+			tab_alarm.alarmTime,
+			tab_alarm.dealState,
+			tab_alarm.createTime
+		FROM
+			tab_alarm
+		LEFT JOIN view_group_car ON view_group_car.carId = tab_alarm.carId
+		AND view_group_car.groupId = tab_alarm.groupId
+		LEFT JOIN tab_train ON view_group_car.trainId = tab_train.trainId
+		LEFT JOIN tab_car ON view_group_car.carId = tab_car.carId
+		WHERE
+			1 = 1
+		<if test="trainName != null and trainName != '' ">
+			AND tab_train.trainName LIKE CONCAT('%',#{trainName},'%')
+		</if>
+		<if test="carId != null and carId > 0">
+			AND tab_alarm.carId = #{carId}
+		</if>
+		<if test="groupId != null and groupId > 0">
+			AND tab_alarm.groupId = #{groupId}
+		</if>
+		<if test="trainId != null and trainId > 0">
+			AND tab_train.trainId = #{trainId}
+		</if>
+		ORDER BY
+			tab_alarm.alarmTime DESC
+	</select>
+	
+	<!-- 更新处理状态 -->
+	<update id="updateAlarmState">
+		UPDATE tab_alarm
+		SET dealState = #{dealState}
+		WHERE
+			tab_alarm.alarmId = #{alarmId}
+	</update>
+	<!-- 查询列车信息 -->
+	<select id="getAlarmByAlarmId" resultType="com.cnmts.alarm.bean.Alarm">
+		SELECT
+			tab_alarm.alarmId,
+			tab_train.trainId,
+			tab_train.trainName,
+			tab_alarm.groupId,
+			tab_alarm.carId,
+			tab_car.carNo,
+			view_group_car.carSort,
+			tab_alarm.alarmFlag,
+			tab_alarm.alarmContent,
+			tab_alarm.alarmTime,
+			tab_alarm.dealState,
+			tab_alarm.createTime
+		FROM
+			tab_alarm
+		LEFT JOIN view_group_car ON view_group_car.carId = tab_alarm.carId
+		AND view_group_car.groupId = tab_alarm.groupId
+		LEFT JOIN tab_train ON view_group_car.trainId = tab_train.trainId
+		LEFT JOIN tab_car ON view_group_car.carId = tab_car.carId
+		WHERE
+			1 = 1
+		<if test="alarmId != null and alarmId > 0">
+			AND tab_alarm.alarmId = #{alarmId}
+		</if>
+	</select>
+</mapper>

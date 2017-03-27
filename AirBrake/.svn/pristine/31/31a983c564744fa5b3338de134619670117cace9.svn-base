@@ -1,0 +1,120 @@
+package com.cnmts.baseinfo.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnmts.baseinfo.exception.CarNoAlreadExistException;
+import com.cnmts.baseinfo.service.CarService;
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.common.bean.ResultType;
+import com.cnmts.common.exception.InvalidDataException;
+import com.cnmts.traffic.bean.Car;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 车厢
+ * 
+ * @author 王璞
+ * @date 2017年1月12日 下午3:46:12
+ * @version 1.0
+ */
+@Controller
+@RequestMapping(value = "/car")
+public class CarController {
+
+	@Autowired
+	private CarService carService;
+
+	/**
+	 * 分页查询车厢列表
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月12日 下午3:47:01
+	 * @param pageInfo
+	 * @param car
+	 * @return
+	 */
+	@RequestMapping(value = { "/getCarListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<Car>> getCarListByPage(PageInfo<Car> pageInfo, Car car) {
+		JsonResult<PageInfo<Car>> jsonResult = new JsonResult<PageInfo<Car>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (StringUtils.isNotEmpty(car.getCarNo())) {
+			search.put("carNo", car.getCarNo());
+		}
+		if (StringUtils.isNotEmpty(car.getIMEI())) {
+			search.put("IMEI", car.getIMEI());
+		}
+		if (StringUtils.isNotEmpty(car.getPhoneNum())) {
+			search.put("phoneNum", car.getPhoneNum());
+		}
+		if (car.getCarState() == 1 || car.getCarState() == 2) {
+			search.put("carState", car.getCarState());
+		}
+		// 未删除的
+		search.put("deleteStatus", 1);
+
+		pageInfo = carService.getCarListByPage(pageInfo, search);
+
+		jsonResult.setObj(pageInfo);
+
+		return jsonResult;
+	}
+
+	/**
+	 * 查询车辆
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月13日 下午4:12:44
+	 * @param carNo
+	 * @return
+	 * @throws InvalidDataException
+	 */
+	@RequestMapping(value = { "/getCarByCarNo" })
+	@ResponseBody
+	public JsonResult<Car> getCarByCarNo(String carNo) throws InvalidDataException {
+		if (StringUtils.isEmpty(carNo)) {
+			throw new InvalidDataException();
+		}
+		carNo = carNo.trim();
+
+		Car car = carService.getCarByCarNo(carNo);
+		return new JsonResult<Car>(car);
+	}
+
+	/**
+	 * 修改车辆信息
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月13日 下午2:35:02
+	 * @return
+	 * @throws InvalidDataException
+	 */
+	@RequestMapping(value = { "/addOrUpdateCarInfo" })
+	@ResponseBody
+	public JsonResult<Boolean> addOrUpdateCarInfo(Car car) throws InvalidDataException {
+		if (StringUtils.isEmpty(car.getCarNo()) || StringUtils.isEmpty(car.getIMEI())) {
+			throw new InvalidDataException();
+		}
+
+		JsonResult<Boolean> jsonResult = new JsonResult<Boolean>();
+		try {
+			if (car.getCarId() > 0) {
+				carService.updateCar(car);
+			} else {
+				carService.addCar(car);
+			}
+		} catch (CarNoAlreadExistException e) {
+			jsonResult.setCode(ResultType.CARNO_ALREADEXIST);
+		}
+		jsonResult.setObj(true);
+		return jsonResult;
+	}
+
+}

@@ -1,0 +1,95 @@
+/*
+*TabGrorpCar.java
+* Compyright(C) 2010-2019  千里时空
+* All rights reserved.
+* ---------------------------
+* 2017-01-10 Created
+*/
+package com.cnmts.traffic.bean;
+
+public class TabGrorpCar {
+    private Integer groupCarId;
+
+    /**
+     * 编组id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer groupId;
+
+    /**
+     * 车辆id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Integer carId;
+
+    /**
+     * 车厢序号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Short carSort;
+
+    public Integer getGroupCarId() {
+        return groupCarId;
+    }
+
+    public void setGroupCarId(Integer groupCarId) {
+        this.groupCarId = groupCarId;
+    }
+
+    /**
+     * 编组id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    /**
+     * 编组id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    /**
+     * 车辆id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Integer getCarId() {
+        return carId;
+    }
+
+    /**
+     * 车辆id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setCarId(Integer carId) {
+        this.carId = carId;
+    }
+
+    /**
+     * 车厢序号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Short getCarSort() {
+        return carSort;
+    }
+
+    /**
+     * 车厢序号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setCarSort(Short carSort) {
+        this.carSort = carSort;
+    }
+}

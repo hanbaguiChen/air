@@ -1,0 +1,339 @@
+package com.cnmts.baseinfo.service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cnmts.baseinfo.dao.TrainMapper;
+import com.cnmts.baseinfo.exception.CarAlreadPlaitException;
+import com.cnmts.baseinfo.exception.CarNotExistException;
+import com.cnmts.baseinfo.exception.TrainHasNotUntieException;
+import com.cnmts.common.bean.Attachment;
+import com.cnmts.common.excel.ExcelEntity;
+import com.cnmts.common.util.DateUtil;
+import com.cnmts.common.util.FileUtil;
+import com.cnmts.common.util.SessionUtil;
+import com.cnmts.data.bean.NetWorkData;
+import com.cnmts.data.bean.NetWorkFeedback;
+import com.cnmts.data.service.NativeDataServiceImpl;
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.Group;
+import com.cnmts.traffic.bean.GroupCar;
+import com.cnmts.traffic.bean.Train;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, readOnly = true)
+public class TrainService {
+
+	@Autowired
+	private TrainMapper trainMapper;
+
+	@Autowired
+	private CarService carService;
+
+	@Autowired
+	private GroupService groupService;
+
+	@Autowired
+	private NativeDataServiceImpl nativeDataService;
+
+	/**
+	 * 分页查询列车
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月10日 下午5:02:43
+	 * @param page
+	 * @param search
+	 * @update 王璞@2017-01-17
+	 * @return
+	 */
+	public PageInfo<Train> getTrainListByPage(PageInfo<Train> page, Map<String, Object> search) {
+		PageHelper.startPage(page.getPageNum(), page.getPageSize());
+		List<Train> trainList = trainMapper.getTrainListByPage(search);
+		page = new PageInfo<Train>(trainList);
+		return page;
+	}
+
+	/**
+	 * 导入excel
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月17日 下午6:08:16
+	 * @param saveTempFile
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> importTrainGroup(Attachment saveTempFile) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		String[] fields = new String[] { "carSort", "carNo" };
+		ExcelEntity<Car> entity = new ExcelEntity<Car>(Car.class, saveTempFile.getFile(), FileUtil.getFileContentType(saveTempFile
+				.getFile()));
+		List<Car> convertToList = entity.convertToList(0, fields);
+
+		// 目标集合
+		List<Car> targetCars = new ArrayList<Car>();
+		// 不能添加的集合
+		List<Car> canNotFindCars = new ArrayList<Car>();
+		if (convertToList != null) {
+			for (int i = 0; i < convertToList.size(); i++) {
+				Car car = convertToList.get(i);
+				if (StringUtils.isEmpty(car.getCarNo())) {
+					continue;
+				}
+
+				Car carByCarNo = carService.getCarByCarNo(car.getCarNo());
+				if (carByCarNo == null || carByCarNo.getDeleteStatus() == 2) {
+					canNotFindCars.add(car);
+					continue;
+				} else if (carByCarNo.getTrainId() > 0) {
+					canNotFindCars.add(carByCarNo);
+					continue;
+				}
+				targetCars.add(carByCarNo);
+			}
+		}
+		map.put("targetCars", targetCars);
+		map.put("canNotAddCars", canNotFindCars);
+
+		return map;
+	}
+
+	/**
+	 * 保存编组
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月17日 下午4:13:39
+	 * @param train
+	 * @throws TrainHasNotUntieException
+	 * @throws CarNotExistException
+	 * @throws CarAlreadPlaitException
+	 */
+	@Transactional(readOnly = false, rollbackFor = { TrainHasNotUntieException.class, CarNotExistException.class,
+			CarAlreadPlaitException.class })
+	public void saveTrainGroup(Train train) throws TrainHasNotUntieException, CarNotExistException, CarAlreadPlaitException {
+		Train trainByTrainName = getTrainByTrainName(train.getTrainName());
+		if (trainByTrainName == null) {
+			trainByTrainName = addTrain(train);
+		}
+		// 判断列车是否已经解编
+		if (trainByTrainName.getLastGroupId() > 0) {
+			throw new TrainHasNotUntieException(trainByTrainName.getTrainId(), trainByTrainName.getTrainName());
+		}
+
+		// 保存编组
+		Group group = train;
+		group.setCreateTime(DateUtil.getCurrentDate());
+		group.setTrainId(trainByTrainName.getTrainId());
+		group.setZigbeeId(train.getZigbeeId());
+		group.setZigbeeKey(train.getZigbeeKey());
+		group.setBegStationId(train.getBegStationId());
+		group.setEndStationId(train.getEndStationId());
+		group.setTotalCarNum(train.getCars().size());
+
+		group.setGroupState(1);
+		group.setPlaitSetState(1);
+		group.setUntieSetState(1);
+		group.setOpUserId(SessionUtil.getCurrentUserId());
+
+		addGroup(group);
+
+		trainByTrainName.setGroupId(group.getGroupId());
+		trainByTrainName.setLastGroupId(group.getGroupId());
+		trainByTrainName.setLastGroupTime(DateUtil.getCurrentDate());
+
+		// 更新列车状态，已编组，设置编组id
+		updateTrainForGroup(trainByTrainName);
+
+		// 检查车厢是否均已解编
+
+		// 添加车厢与编组关联
+		List<GroupCar> groupCars = new ArrayList<GroupCar>();
+		List<Car> cars = train.getCars();
+		for (int i = 0; i < cars.size(); i++) {
+			Car car = carService.getCarByCarId(cars.get(i).getCarId());
+			if (car == null) {
+				// 车厢不存在
+				throw new CarNotExistException();
+			}
+			if (car.getTrainId() > 0) {
+				// 车厢已被编组
+				throw new CarAlreadPlaitException(car.getCarId(), car.getCarNo(), car.getTrainName());
+			}
+
+			GroupCar groupCar = new GroupCar();
+			groupCar.setGroupId(group.getGroupId());
+			groupCar.setCarId(cars.get(i).getCarId());
+			groupCar.setCarSort(i + 1);
+
+			groupCars.add(groupCar);
+		}
+		addGroupCarList(groupCars);
+	}
+
+	/**
+	 * 查询列车
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月17日 下午6:55:05
+	 * @param trainId
+	 * @update 王璞@2017-01-17
+	 * @return
+	 */
+	public Train getTrainByTrainId(int trainId) {
+		return trainMapper.getTrainByTrainId(trainId);
+	}
+
+	/**
+	 * 查询列车
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月17日 下午4:17:22
+	 * @param trainName
+	 * @update 王璞@2017年1月17日 下午4:17:22 从traffic移除至此
+	 */
+	public Train getTrainByTrainName(String trainName) {
+		return trainMapper.getTrainByTrainName(trainName);
+	}
+
+	/**
+	 * 保存列车
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月17日 下午4:21:08
+	 * @param train
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public Train addTrain(Train train) {
+		trainMapper.saveTrain(train);
+		return train;
+	}
+
+	/**
+	 * 更新列车编组信息
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月17日 下午4:37:40
+	 * @param train
+	 */
+	@Transactional(readOnly = false)
+	public void updateTrainForGroup(Train train) {
+		trainMapper.updateTrainForGroup(train);
+	}
+
+	/**
+	 * 保存编组
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月17日 下午4:27:51
+	 * @param group
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public Group addGroup(Group group) {
+		trainMapper.saveGroup(group);
+		return group;
+	}
+
+	/**
+	 * 保存编组与车辆关联
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月17日 下午4:47:09
+	 * @param groupCars
+	 */
+	@Transactional(readOnly = false)
+	public void addGroupCarList(List<GroupCar> groupCars) {
+		trainMapper.saveGroupCars(groupCars);
+	}
+
+	/**
+	 * 组网
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月22日 上午10:22:40
+	 * @param groupId
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public int buildNetWork(int trainId) {
+		Train train = getTrainByTrainId(trainId);
+		if (train == null) {// 列车不存在
+			return -1;
+		}
+		NetWorkData netWorkData = new NetWorkData();
+		netWorkData.setTrainName(train.getTrainName());
+		netWorkData.setBegStationName(train.getBegStationName());
+		netWorkData.setEndStationName(train.getEndStationName());
+		netWorkData.setZigbeeId(train.getZigbeeId());
+		netWorkData.setZigbeeKey(train.getZigbeeKey());
+
+		List<Car> carsByTrainId = carService.getCarsByTrainId(trainId);
+		if (carsByTrainId == null || carsByTrainId.size() <= 0) {
+			// TODO 车厢列表为null
+		}
+		netWorkData.setMainCarNo(carsByTrainId.get(0).getCarNo());
+		ArrayList<String> carNoList = new ArrayList<String>();
+		for (int i = 1; i < carsByTrainId.size(); i++) {// 排除第一节，第一节为主车厢
+			carNoList.add(carsByTrainId.get(i).getCarNo());
+		}
+		netWorkData.setCarNoList(carNoList);
+
+		return nativeDataService.buildNetWork(netWorkData);
+	}
+
+	/**
+	 * 解网
+	 * 
+	 * @author 王璞
+	 * @date 2017年2月6日 上午10:13:25
+	 * @param trainId
+	 * @return
+	 */
+	public int destoryNetWork(int trainId) {
+		List<Car> carsByTrainId = carService.getCarsByTrainId(trainId);
+		if (carsByTrainId == null || carsByTrainId.size() <= 0) {
+			// TODO 车厢列表为null
+		}
+		NetWorkData netWorkData = new NetWorkData();
+		netWorkData.setMainCarNo(carsByTrainId.get(0).getCarNo());
+
+		return nativeDataService.destoryNetWork(netWorkData);
+	}
+
+	/**
+	 * 查询组网/解网进度
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月22日 上午11:20:30
+	 * @param msgNo
+	 * @return
+	 */
+	public NetWorkFeedback getNetWorkFeedback(int msgNo) {
+		NetWorkFeedback netWorkFeedback = nativeDataService.getNetWorkFeedbackByMsgNo(msgNo);
+		netWorkFeedback = new NetWorkFeedback();
+		netWorkFeedback.setTimestamp(new Date().getTime());
+		
+		ArrayList<String> arrayList = new ArrayList<String>();
+		arrayList.add("123123");
+		arrayList.add("123124");
+		arrayList.add("123125");
+		
+		netWorkFeedback.setCarNoList(arrayList);
+		
+		return netWorkFeedback;
+	}
+
+}

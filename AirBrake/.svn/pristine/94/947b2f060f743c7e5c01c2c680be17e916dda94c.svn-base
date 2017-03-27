@@ -1,0 +1,21 @@
+package com.cnmts.data.service;
+
+import com.cnmts.common.util.DateUtil;
+import com.cnmts.data.bean.AlarmData;
+
+public class NativeDataService {
+
+	/**
+	 * 收到报警信息
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月10日 下午4:30:18
+	 */
+	public void receiveAlarm(AlarmData alarmData) {
+		alarmData.setAlarmTime(DateUtil.getDate(alarmData.getAlarmTimestamp()));
+		alarmData.setCreateTime(DateUtil.getCurrentDate());
+		// TODO 设置报警内容
+		// TODO 存储报警信息
+	}
+
+}

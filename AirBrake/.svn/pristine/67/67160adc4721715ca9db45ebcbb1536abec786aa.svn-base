@@ -1,0 +1,12 @@
+package com.cnmts.alarm.dao;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cnmts.alarm.bean.AlarmDeal;
+
+public interface AlarmDealMapper {
+	void saveDeal(AlarmDeal alarmDeal);
+
+	AlarmDeal getDealByAlarmId(@Param("alarmId") int alarmId);
+
+}

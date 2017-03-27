@@ -1,0 +1,233 @@
+package com.cnmts.traffic.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnmts.baseinfo.service.CarService;
+import com.cnmts.baseinfo.service.GroupService;
+import com.cnmts.baseinfo.service.TrainService;
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.data.bean.AlarmData;
+import com.cnmts.data.service.NativeDataServiceImpl;
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.CarAlarm;
+import com.cnmts.traffic.bean.Group;
+import com.cnmts.traffic.bean.Train;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 路网列车监测控制器
+ * 
+ * @date 2017年1月10日 下午5:01:48
+ * @version 1.0
+ */
+@Controller
+@RequestMapping(value = { "/traffic" })
+public class TrafficController {
+
+	@Autowired
+	private TrainService trainService;
+
+	@Autowired
+	private CarService carService;
+
+	@Autowired
+	private GroupService groupService;
+
+	@Autowired
+	private NativeDataServiceImpl nativeDataService;
+
+	/**
+	 * 分页查询列车
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月10日 下午5:02:18
+	 */
+	@RequestMapping(value = { "/getTrainListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<Train>> getTrainListByPage(PageInfo<Train> page, Train train) {
+		JsonResult<PageInfo<Train>> jsonResult = new JsonResult<PageInfo<Train>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (StringUtils.isNotEmpty(train.getTrainName())) {
+			search.put("trainName", train.getTrainName());
+		}
+		PageInfo<Train> pageInfo = trainService.getTrainListByPage(page, search);
+		/*CarAlarm carAlarm = new CarAlarm();*/
+		for(int i=0;i<pageInfo.getList().size();i++){
+			List<Car> cars = carService.getCarsByTrainId(pageInfo.getList().get(i).getTrainId());
+			for (Car car : cars) {
+				/*carAlarm = nativeDataService.getCarStateByCarNo(car.getCarNo());
+				if(carAlarm != null){
+					
+					pageInfo.getList().get(i).setAlarmState(carAlarm.getAlarmState());
+				}*/
+				car = nativeDataService.getCarStateByCarNo(car.getCarNo());
+
+				if(car != null){
+					pageInfo.getList().get(i).setAlarmState(car.getAlarmState());
+					}
+			}
+		}
+		jsonResult.setObj(pageInfo);
+		
+		return jsonResult;
+	}
+
+	/**
+	 * 分页查询编组列表
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月14日
+	 * @param page
+	 * @param group
+	 * @return
+	 */
+	@RequestMapping(value = { "/getGroupList" })
+	@ResponseBody
+	public JsonResult<PageInfo<Group>> getGroupList(PageInfo<Group> page, Group group) {
+		JsonResult<PageInfo<Group>> jsonResult = new JsonResult<PageInfo<Group>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (group.getBegTime() != null) {
+			search.put("begTime", group.getBegTime());
+		}
+		if (group.getEndTime() != null) {
+			search.put("endTime", group.getEndTime());
+		}
+		PageInfo<Group> pageInfo = groupService.getGroupList(page, search);
+		jsonResult.setObj(pageInfo);
+		
+		return jsonResult;
+	}
+
+	/**
+	 * 通过trainId/trainName查询列车信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月11日
+	 * @param trainId
+	 * @return
+	 */
+	@RequestMapping(value = { "/getTrainByTrainParams" })
+	@ResponseBody
+	public JsonResult<Train> getTrainByTrainParams(@RequestParam(defaultValue = "-1") int trainId, String trainName) {
+		Train train = null;
+		if (trainId > 0) {
+			train = trainService.getTrainByTrainId(trainId);
+		} else if (StringUtils.isNotEmpty(trainName)) {
+			train = trainService.getTrainByTrainName(trainName);
+		}
+		return new JsonResult<Train>(train);
+	}
+
+	/**
+	 * 通过trainId获取列车编组信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月11日
+	 * @param trainId
+	 * @update 王璞@2017-01-17 修改为调用carService方法
+	 * @return
+	 */
+	@RequestMapping(value = { "/getCarsByTrainId" })
+	@ResponseBody
+	public JsonResult<List<Car>> getCarsByTrainId(int trainId) {
+		List<Car> cars = carService.getCarsByTrainId(trainId);
+		return new JsonResult<List<Car>>(cars);
+	}
+	
+	@RequestMapping(value = { "/getCarAlarmByTrainId" })
+	@ResponseBody
+	public JsonResult<List<Car>> getCarAlarmByTrainId (int trainId){
+		/*CarAlarm alarm = new CarAlarm();
+		List<CarAlarm> carAlarms = new ArrayList<>();。
+		JsonResult<List<CarAlarm>>jsonResult = new JsonResult<>();
+		List<Car> cars = carService.getCarsByTrainId(trainId);
+		for (Car car : cars) {
+			alarm = nativeDataService.getCarStateByCarNo(car.getCarNo());
+			carAlarms.add(alarm);
+		}
+		jsonResult.setObj(carAlarms);*/
+		Car car1 = new Car();
+		JsonResult<List<Car>>jsonResult = new JsonResult<>();
+		List<Car> cars = carService.getCarsByTrainId(trainId);
+		for (Car car : cars) {
+			car1 = nativeDataService.getCarStateByCarNo(car.getCarNo());
+			if(car1 != null){
+				car.setAlarmState(car1.getAlarmState());
+				car.setCarOnlineState(car1.getCarOnlineState());
+			}
+		}
+		jsonResult.setObj(cars);
+		return jsonResult;
+		
+	}
+
+	/**
+	 * 查询报警列表 
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月17日 下午7:00:49
+	 * @param groupId
+	 * @return
+	 */
+	@RequestMapping(value = { "/getAlarmListByCarNo" })
+	@ResponseBody
+	public JsonResult<Queue<AlarmData>> getAlarmListByCarNo(int groupId) {
+		Queue<AlarmData> alarmDatas = nativeDataService.getAlarmListByGroupId(groupId);
+		return new JsonResult<Queue<AlarmData>>(alarmDatas);
+	}
+
+	/**
+	 * 模糊查询车次
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月12日
+	 * @param trainName
+	 * @return
+	 */
+	@RequestMapping(value = { "/likeTrainName" })
+	@ResponseBody
+	public JsonResult<List<Train>> likeTrainName(String trainName) {
+		JsonResult<List<Train>> jsonResult = new JsonResult<List<Train>>();
+
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (StringUtils.isNotEmpty(trainName)) {
+			search.put("trainName", trainName);
+		}
+		PageInfo<Train> page = new PageInfo<Train>();
+		page.setPageNum(1);
+		page.setPageSize(10);
+
+		PageInfo<Train> pageInfo = trainService.getTrainListByPage(page, search);
+		jsonResult.setObj(pageInfo.getList());
+
+		return jsonResult;
+	}
+	/**
+	 * 获取列车状态
+	 *@author 陈洁
+	 *@date 2017年2月7日
+	 * @param trainId
+	 * @return
+	 */
+	@RequestMapping(value = {"/getTrainState"})
+	@ResponseBody
+	public JsonResult<CarAlarm> getTrainState (@RequestParam(defaultValue = "-1") int trainId){
+		CarAlarm carAlarm = new CarAlarm();
+		List<Car> cars = carService.getCarsByTrainId(trainId);
+			
+		return new JsonResult<CarAlarm>(carAlarm);
+	}
+
+
+}

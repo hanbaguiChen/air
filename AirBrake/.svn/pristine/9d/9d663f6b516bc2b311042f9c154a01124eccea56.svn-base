@@ -1,0 +1,27 @@
+package com.cnmts.data.bean;
+
+import com.cnmts.alarm.bean.Alarm;
+
+/**
+ * 用于接收数据的报警实体类
+ * 
+ * @author 王璞
+ * @date 2017年1月10日 下午4:31:39
+ * @version 1.0
+ */
+public class AlarmData extends Alarm {
+
+	private static final long serialVersionUID = -104343179898306083L;
+
+	/** 报警时间戳 */
+	private long alarmTimestamp;
+
+	public long getAlarmTimestamp() {
+		return alarmTimestamp;
+	}
+
+	public void setAlarmTimestamp(long alarmTimestamp) {
+		this.alarmTimestamp = alarmTimestamp;
+	}
+
+}

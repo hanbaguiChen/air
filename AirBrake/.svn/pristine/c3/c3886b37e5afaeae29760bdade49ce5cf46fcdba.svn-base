@@ -1,0 +1,135 @@
+package com.cnmts.alarm.bean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 报警实体类
+ * 
+ * @author 王璞
+ * @date 2017年1月10日 下午4:24:43
+ * @version 1.0
+ */
+public class Alarm implements Serializable {
+
+	private static final long serialVersionUID = 2612632300642120789L;
+	private int alarmId;
+	/** 车次 */
+	private int trainId;
+	private String trainName;
+	/** 所属编组 */
+	private int groupId;
+	/** 报警的车厢id */
+	private int carId;
+	/** 标记 */
+	private int alarmFlag;
+	/** 报警内容 */
+	private String alarmContent;
+	/** 报警时间 */
+	private Date alarmTime;
+	/** 数据接收到的时间 */
+	private Date createTime;
+	/** 处理状态 0.未处理 1.忽略 2，.已处理 */
+	private int dealState;
+	/** 车厢序号 */
+	private int carSort;
+	/** 车底编号 */
+	private String carNo;
+
+	public int getAlarmId() {
+		return alarmId;
+	}
+
+	public void setAlarmId(int alarmId) {
+		this.alarmId = alarmId;
+	}
+
+	public int getAlarmFlag() {
+		return alarmFlag;
+	}
+
+	public void setAlarmFlag(int alarmFlag) {
+		this.alarmFlag = alarmFlag;
+	}
+
+	public String getAlarmContent() {
+		return alarmContent;
+	}
+
+	public void setAlarmContent(String alarmContent) {
+		this.alarmContent = alarmContent;
+	}
+
+	public Date getAlarmTime() {
+		return alarmTime;
+	}
+
+	public void setAlarmTime(Date alarmTime) {
+		this.alarmTime = alarmTime;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public int getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+
+	public int getCarId() {
+		return carId;
+	}
+
+	public void setCarId(int carId) {
+		this.carId = carId;
+	}
+
+	public int getDealState() {
+		return dealState;
+	}
+
+	public void setDealState(int dealState) {
+		this.dealState = dealState;
+	}
+
+	public int getCarSort() {
+		return carSort;
+	}
+
+	public void setCarSort(int carSort) {
+		this.carSort = carSort;
+	}
+
+	public String getCarNo() {
+		return carNo;
+	}
+
+	public void setCarNo(String carNo) {
+		this.carNo = carNo;
+	}
+
+	public String getTrainName() {
+		return trainName;
+	}
+
+	public void setTrainName(String trainName) {
+		this.trainName = trainName;
+	}
+
+	public int getTrainId() {
+		return trainId;
+	}
+
+	public void setTrainId(int trainId) {
+		this.trainId = trainId;
+	}
+
+}

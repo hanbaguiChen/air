@@ -1,0 +1,79 @@
+log4j.rootCategory=debug,console,dayfile
+
+# 全局日志 输出到控制台
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] -%m%n
+
+# 全局日志
+log4j.appender.dayfile=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.dayfile.DatePattern='_'yyyy-MM-dd'.log'
+log4j.appender.dayfile.File=${catalina.home}/mts_air_brake_logs/all
+log4j.appender.dayfile.layout=org.apache.log4j.PatternLayout
+log4j.appender.dayfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] -%m%n
+log4j.appender.dayfile.Append=true
+
+# 数据库备份日志
+log4j.logger.com.cnmts.common.schedule.DatabaseBackupSchedule=INFO,console,backup
+log4j.additivity.backup=false
+log4j.appender.backup=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.backup.File=${catalina.home}/mts_air_brake_logs/backup
+log4j.appender.backup.DatePattern='_'yyyy-MM'.log'
+log4j.appender.backup.layout=org.apache.log4j.PatternLayout
+log4j.appender.backup.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] %m%n
+log4j.appender.backup.Append=true
+
+# 统一异常处理器
+log4j.logger.com.cnmts.common.handler.ExceptionHandler=INFO,console,exceptionHandler
+log4j.additivity.exceptionHandler=false
+log4j.appender.exceptionHandler=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.exceptionHandler.File=${catalina.home}/mts_air_brake_logs/exceptionHandler
+log4j.appender.exceptionHandler.DatePattern='_'yyyy-MM'.log'
+log4j.appender.exceptionHandler.layout=org.apache.log4j.PatternLayout
+log4j.appender.exceptionHandler.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] %m%n
+log4j.appender.exceptionHandler.Append=true
+
+# 系统启动监听器
+log4j.logger.com.cnmts.common.listener.SystemStartLister=INFO,console,systemstart
+log4j.additivity.systemstart=false
+log4j.appender.systemstart=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.systemstart.File=${catalina.home}/mts_air_brake_logs/systemstart
+log4j.appender.systemstart.DatePattern='_'yyyy-MM'.log'
+log4j.appender.systemstart.layout=org.apache.log4j.PatternLayout
+log4j.appender.systemstart.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] %m%n
+log4j.appender.systemstart.Append=true
+
+# JNI接口
+log4j.logger.com.cnmts.data.service.NativeDataService=INFO,console,nativedataservice
+log4j.additivity.nativedataservice=false
+log4j.appender.nativedataservice=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.nativedataservice.File=${catalina.home}/mts_air_brake_logs/nativedataservice
+log4j.appender.nativedataservice.DatePattern='_'yyyy-MM'.log'
+log4j.appender.nativedataservice.layout=org.apache.log4j.PatternLayout
+log4j.appender.nativedataservice.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] %m%n
+log4j.appender.nativedataservice.Append=true
+
+# SqlMap logging configuration...  
+log4j.appender.sqllogfile=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.sqllogfile.File=${catalina.home}/mts_air_brake_logs/sqllogfile
+log4j.appender.sqllogfile.DatePattern='_'yyyy-MM-dd'.log'
+log4j.appender.sqllogfile.layout=org.apache.log4j.PatternLayout
+log4j.appender.sqllogfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] -%m%n
+log4j.appender.sqllogfile.Append=true
+log4j.appender.sqllogfile.encoding=UTF-8
+
+#druid日志
+log4j.logger.druid.sql=error,console
+log4j.logger.druid.sql.DataSource=error,console
+log4j.logger.druid.sql.Connection=error,console
+log4j.logger.druid.sql.Statement=debug,sqllogfile
+log4j.logger.druid.sql.ResultSet=error,console
+
+log4j.additivity.druid.sql=false
+log4j.additivity.druid.sql.DataSource=false
+log4j.additivity.druid.sql.Connection=false
+log4j.additivity.druid.sql.Statement=false
+log4j.additivity.druid.sql.ResultSet=false
+
+log4j.logger.org.quartz=INFO
+log4j.logger.org.apache.http=INFO  

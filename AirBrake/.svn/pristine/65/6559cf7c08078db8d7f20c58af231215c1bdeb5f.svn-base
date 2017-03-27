@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cnmts.data.dao.NativeDataMapper">
+	
+	<!-- 查询carNo所在的编组 -->
+	<select id="getGroupCarByCarNo" resultType="com.cnmts.traffic.bean.GroupCar">
+		SELECT
+			tab_group.groupId,
+			tab_car.carId,
+			tab_car.carNo
+		FROM
+			tab_car,
+			tab_group_car,
+			tab_group
+		WHERE
+			tab_car.carId = tab_group_car.carId
+		AND tab_group_car.groupId = tab_group.groupId
+		AND tab_group.groupState = 1
+		AND tab_car.carNo = #{carNo}
+	</select>
+</mapper>
+ 

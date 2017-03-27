@@ -1,0 +1,36 @@
+package com.cnmts.baseinfo.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cnmts.baseinfo.dao.CarMapper;
+import com.cnmts.traffic.bean.Car;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+public class CarService {
+
+	@Autowired
+	private CarMapper carMapper;
+
+	/**
+	 * 分页查询车厢列表
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月12日 下午3:46:48
+	 * @param pageInfo
+	 * @param search
+	 * @return
+	 */
+	public PageInfo<Car> getCarListByPage(PageInfo<Car> pageInfo, Map<String, Object> search) {
+		PageHelper.startPage(pageInfo.getPageNum(), pageInfo.getPageSize());
+		List<Car> carList = carMapper.getCarListByPage(search);
+		pageInfo = new PageInfo<Car>(carList);
+		return pageInfo;
+	}
+
+}

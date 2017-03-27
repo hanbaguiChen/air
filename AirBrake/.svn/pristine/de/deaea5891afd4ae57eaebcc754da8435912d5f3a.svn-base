@@ -1,0 +1,126 @@
+package com.cnmts.traffic.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.data.bean.AlarmData;
+import com.cnmts.data.service.NativeDataService;
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.Train;
+import com.cnmts.traffic.service.TrafficService;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 路网列车监测控制器
+ * 
+ * @date 2017年1月10日 下午5:01:48
+ * @version 1.0
+ */
+@Controller
+@RequestMapping(value = { "/traffic" })
+public class TrafficController {
+
+	@Autowired
+	private TrafficService trafficService;
+
+	@Autowired
+	private NativeDataService nativeDataService;
+
+	/**
+	 * 分页查询列车
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月10日 下午5:02:18
+	 */
+	@RequestMapping(value = { "/getTrainListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<Train>> getTrainListByPage(PageInfo<Train> page, Train train) {
+		JsonResult<PageInfo<Train>> jsonResult = new JsonResult<PageInfo<Train>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (StringUtils.isNotEmpty(train.getTrainName())) {
+			search.put("trainName", train.getTrainName());
+		}
+		PageInfo<Train> pageInfo = trafficService.getTrainListByPage(page, search);
+		jsonResult.setObj(pageInfo);
+		return jsonResult;
+	}
+
+	/**
+	 * 通过trainId查询列车信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月11日
+	 * @param trainId
+	 * @return
+	 */
+	@RequestMapping(value = { "/getTrainByTrainParams" })
+	@ResponseBody
+	public JsonResult<Train> getTrainByTrainParams(@RequestParam(defaultValue = "-1") int trainId, String trainName) {
+		Train train = null;
+		if (trainId > 0) {
+			train = trafficService.getTrainByTrainId(trainId);
+		} else if (StringUtils.isNotEmpty(trainName)) {
+			train = trafficService.getTrainByTrainName(trainName);
+		}
+		return new JsonResult<Train>(train);
+	}
+
+	/**
+	 * 通过trainId获取列车编组信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月11日
+	 * @param trainId
+	 * @return
+	 */
+	@RequestMapping(value = { "/getCarsByTrainId" })
+	@ResponseBody
+	public JsonResult<List<Car>> getCarsByTrainId(int trainId) {
+		List<Car> cars = trafficService.getCarsByTrainId(trainId);
+		return new JsonResult<List<Car>>(cars);
+	}
+	
+	@RequestMapping(value = { "/getAllCars" })
+	@ResponseBody
+	public JsonResult<List<Car>> getAllCars() {
+		List<Car> cars = trafficService.getAllCars();
+		return new JsonResult<List<Car>>(cars);
+	}
+
+	@RequestMapping(value = { "/getAlarmListByCarNo" })
+	@ResponseBody
+	public JsonResult<Queue<AlarmData>> getAlarmListByCarNo(int groupId) {
+		Queue<AlarmData> alarmDatas = nativeDataService.getAlarmListByGroupId(groupId);
+		return new JsonResult<Queue<AlarmData>>(alarmDatas);
+	}
+
+	/**
+	 * 模糊查询车次
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月12日
+	 * @param trainName
+	 * @return
+	 */
+	@RequestMapping(value = { "/likeTrainName" })
+	@ResponseBody
+	public JsonResult<Train> likeTrainName(String trainName) {
+		Train train = null;
+		if (StringUtils.isNotEmpty(trainName)) {
+			train = trafficService.likeTrainName(trainName);
+		}
+		return new JsonResult<Train>(train);
+	}
+	
+
+}

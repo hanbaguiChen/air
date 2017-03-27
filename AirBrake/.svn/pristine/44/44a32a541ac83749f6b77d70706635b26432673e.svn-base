@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.baseinfo.dao.TrainMapper">
+	
+	<!-- 分页查询车次信息 -->
+	<select id="getTrainListByPage" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+			tab_train.trainId,
+			tab_train.trainName,
+			tab_group.groupId,
+			tab_group.zigbeeId,
+			tab_group.zigbeeKey,
+			tab_group.begStationId,
+			begStation.stationName AS begStationName,
+			tab_group.endStationId,
+			endStation.stationName AS endStationName,
+			tab_group.createTime,
+			tab_group.totalCarNum,
+			tab_group.groupState,
+			tab_group.plaitSetState,
+			tab_group.untieSetState
+		FROM
+			tab_train
+		LEFT JOIN tab_group ON tab_group.groupId = tab_train.lastGroupId
+		LEFT JOIN tab_station begStation ON tab_group.begStationId = begStation.stationId
+		LEFT JOIN tab_station endStation ON tab_group.endStationId = endStation.stationId
+		WHERE
+			1 = 1
+		<if test="trainName != null and trainName != '' ">
+			AND tab_train.trainName LIKE CONCAT('%',#{trainName},'%')
+		</if>
+	</select>
+	
+	<select id="getTrainByTrainId" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+			tab_train.trainId,
+			tab_train.trainName,
+			tab_train.lastGroupId,
+			tab_group.groupId,
+			tab_group.zigbeeId,
+			tab_group.zigbeeKey,
+			tab_group.begStationId,
+			begStation.stationName AS begStationName,
+			tab_group.endStationId,
+			endStation.stationName AS endStationName,
+			tab_group.createTime,
+			tab_group.totalCarNum,
+			tab_group.groupState
+		FROM
+			tab_train
+		LEFT JOIN tab_group ON tab_group.groupId = tab_train.lastGroupId
+		LEFT JOIN tab_station begStation ON tab_group.begStationId = begStation.stationId
+		LEFT JOIN tab_station endStation ON tab_group.endStationId = endStation.stationId
+		WHERE
+			1 = 1
+		AND tab_train.trainId = #{trainId}
+	</select>
+	
+	<!-- 查询列车 -->
+	<select id="getTrainByTrainName" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+			tab_train.trainId,
+			tab_train.trainName,
+			tab_train.lastGroupId,
+			tab_group.groupId,
+			tab_group.zigbeeId,
+			tab_group.zigbeeKey,
+			tab_group.begStationId,
+			begStation.stationName AS begStationName,
+			tab_group.endStationId,
+			endStation.stationName AS endStationName,
+			tab_group.createTime,
+			tab_group.totalCarNum,
+			tab_group.groupState
+		FROM
+			tab_train
+		LEFT JOIN tab_group ON tab_group.groupId = tab_train.lastGroupId
+		LEFT JOIN tab_station begStation ON tab_group.begStationId = begStation.stationId
+		LEFT JOIN tab_station endStation ON tab_group.endStationId = endStation.stationId
+		WHERE
+			1 = 1
+		AND tab_train.trainName = #{trainName}
+	</select>
+	
+	<!-- 保存列车 -->
+	<insert id="saveTrain" useGeneratedKeys="true" keyColumn="trainId" keyProperty="trainId">
+		INSERT INTO tab_train (
+			trainName
+		)VALUES(
+			#{trainName}
+		)
+	</insert>
+	
+	<!-- 保存编组 -->
+	<insert id="saveGroup" useGeneratedKeys="true" keyColumn="groupId" keyProperty="groupId">
+		INSERT INTO tab_group (
+			trainId,
+			createTime,
+			zigbeeId,
+			zigbeeKey,
+			begStationId,
+			endStationId,
+			totalCarNum,
+			groupState,
+			plaitSetState,
+			untieSetState,
+			opUserId
+		)VALUES(
+			#{trainId},
+			#{createTime},
+			#{zigbeeId},
+			#{zigbeeKey},
+			#{begStationId},
+			#{endStationId},
+			#{totalCarNum},
+			#{groupState},
+			#{plaitSetState},
+			#{untieSetState},
+			#{opUserId}
+		)
+	</insert>
+	
+	<!-- 更新列车编组信息 -->
+	<update id="updateTrainForGroup">
+		UPDATE tab_train
+		SET lastGroupId = #{lastGroupId},
+		 lastGroupTime = #{lastGroupTime}
+		WHERE
+			trainId = #{trainId}
+	</update>
+	
+	<!-- 批量插入编组与车厢关系 -->
+	<insert id="saveGroupCars">
+		INSERT INTO tab_group_car (
+			groupId, 
+			carId,
+			carSort
+		)VALUES
+			<foreach collection="list" item="groupCar" index="index" separator=",">
+				(#{groupCar.groupId},#{groupCar.carId},#{groupCar.carSort})
+			</foreach>
+	</insert>
+</mapper>

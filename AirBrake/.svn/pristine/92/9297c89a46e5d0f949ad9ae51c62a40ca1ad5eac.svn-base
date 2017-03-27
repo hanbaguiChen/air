@@ -1,0 +1,12 @@
+package com.cnmts.baseinfo.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cnmts.traffic.bean.Group;
+
+public interface GroupMapper {
+
+	List<Group> getGroupList(Map<String, Object> search);
+
+}

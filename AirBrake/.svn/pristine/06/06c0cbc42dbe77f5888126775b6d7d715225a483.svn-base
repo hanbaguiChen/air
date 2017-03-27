@@ -1,0 +1,54 @@
+package com.cnmts.data.bean;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * 组网/解网信息反馈
+ * 
+ * @author 王璞
+ * @date 2017年1月18日 下午2:54:41
+ * @version 1.0
+ */
+public class NetWorkFeedback implements Serializable {
+
+	private static final long serialVersionUID = -357243754788805058L;
+	private int msgNo;
+	/** 1组网信息反馈，2解网信息反馈 */
+	private int msgType;
+	private long timestamp;
+	private List<String> carNoList;
+
+	public int getMsgNo() {
+		return msgNo;
+	}
+
+	public void setMsgNo(int msgNo) {
+		this.msgNo = msgNo;
+	}
+
+	public int getMsgType() {
+		return msgType;
+	}
+
+	public void setMsgType(int msgType) {
+		this.msgType = msgType;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public List<String> getCarNoList() {
+		return carNoList;
+	}
+
+	public void setCarNoList(List<String> carNoList) {
+		this.carNoList = carNoList;
+	}
+
+}

@@ -1,0 +1,80 @@
+package com.cnmts.baseinfo.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cnmts.baseinfo.dao.CarMapper;
+import com.cnmts.baseinfo.exception.CarNoAlreadExistException;
+import com.cnmts.traffic.bean.Car;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+public class CarService {
+
+	@Autowired
+	private CarMapper carMapper;
+
+	/**
+	 * 分页查询车厢列表
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月12日 下午3:46:48
+	 * @param pageInfo
+	 * @param search
+	 * @return
+	 */
+	public PageInfo<Car> getCarListByPage(PageInfo<Car> pageInfo, Map<String, Object> search) {
+		PageHelper.startPage(pageInfo.getPageNum(), pageInfo.getPageSize());
+		List<Car> carList = carMapper.getCarListByPage(search);
+		pageInfo = new PageInfo<Car>(carList);
+		return pageInfo;
+	}
+
+	/**
+	 * 通过编号查询车辆
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月13日 下午2:57:39
+	 * @param carNo
+	 * @return
+	 */
+	public Car getCarByCarNo(String carNo) {
+		return carMapper.getCarByCarNo(carNo);
+	}
+
+	/**
+	 * 添加车辆
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月13日 下午2:46:59
+	 * @param car
+	 * @throws CarNoAlreadExistException
+	 */
+	@Transactional(readOnly = false, rollbackFor = { CarNoAlreadExistException.class })
+	public void addCar(Car car) throws CarNoAlreadExistException {
+		Car carByCarNo = getCarByCarNo(car.getCarNo());
+		if (carByCarNo != null) {
+			throw new CarNoAlreadExistException(car.getCarNo());
+		}
+		car.setDeleteStatus(1);
+		carMapper.addCar(car);
+	}
+
+	/**
+	 * 修改车辆
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月13日 下午2:48:24
+	 * @param car
+	 */
+	@Transactional(readOnly = false)
+	public void updateCar(Car car) {
+		carMapper.updateCar(car);
+	}
+
+}

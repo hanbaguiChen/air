@@ -1,0 +1,112 @@
+/*
+ *TabGrorp.java
+ * Compyright(C) 2010-2019  千里时空
+ * All rights reserved.
+ * ---------------------------
+ * 2017-01-10 Created
+ */
+package com.cnmts.traffic.bean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 编组实体类
+ * 
+ * @author 陈洁
+ * @date 2017年1月10日 下午5:01:09
+ * @version 1.0
+ */
+public class Grorp implements Serializable {
+
+	private static final long serialVersionUID = -3145761407019272280L;
+	/** 编组id */
+	private int groupId;
+	/** 编组时间 */
+	private Date createTime;
+	/** zigbee网络id */
+	private String zigbeeId;
+	/** zigbee网络key */
+	private String zigbeeKey;
+	/** 始发站 */
+	private int begStationId;
+	private String begStationName;
+	/** 终到站 */
+	private int endStatuibId;
+	private String endStationName;
+	/** 操作人 */
+	private int opUserId;
+
+	public int getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getZigbeeId() {
+		return zigbeeId;
+	}
+
+	public void setZigbeeId(String zigbeeId) {
+		this.zigbeeId = zigbeeId;
+	}
+
+	public String getZigbeeKey() {
+		return zigbeeKey;
+	}
+
+	public void setZigbeeKey(String zigbeeKey) {
+		this.zigbeeKey = zigbeeKey;
+	}
+
+	public int getBegStationId() {
+		return begStationId;
+	}
+
+	public void setBegStationId(int begStationId) {
+		this.begStationId = begStationId;
+	}
+
+	public int getEndStatuibId() {
+		return endStatuibId;
+	}
+
+	public void setEndStatuibId(int endStatuibId) {
+		this.endStatuibId = endStatuibId;
+	}
+
+	public int getOpUserId() {
+		return opUserId;
+	}
+
+	public void setOpUserId(int opUserId) {
+		this.opUserId = opUserId;
+	}
+
+	public String getBegStationName() {
+		return begStationName;
+	}
+
+	public void setBegStationName(String begStationName) {
+		this.begStationName = begStationName;
+	}
+
+	public String getEndStationName() {
+		return endStationName;
+	}
+
+	public void setEndStationName(String endStationName) {
+		this.endStationName = endStationName;
+	}
+
+}

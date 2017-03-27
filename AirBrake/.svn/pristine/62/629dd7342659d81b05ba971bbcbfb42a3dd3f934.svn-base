@@ -1,0 +1,244 @@
+package com.cnmts.data.service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.cnmts.common.bean.SystemConfig;
+import com.cnmts.common.util.DateUtil;
+import com.cnmts.data.bean.AlarmData;
+import com.cnmts.data.bean.DataBatch;
+import com.cnmts.data.bean.NetWorkData;
+import com.cnmts.data.bean.NetWorkFeedback;
+import com.cnmts.data.bean.SensorData;
+import com.cnmts.data.bean.SensorDataBatch;
+import com.cnmts.data.bean.SensorDataSub;
+import com.cnmts.data.dao.NativeDataMapper;
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.CarAlarm;
+import com.cnmts.traffic.bean.GroupCar;
+
+/**
+ * JNI数据接口
+ * 
+ * @author 王璞
+ * @date 2017年1月19日 上午9:45:54
+ * @version 1.0
+ */
+public class NativeDataService implements NativeDataFeedback {
+
+	protected Logger logger = Logger.getLogger(NativeDataService.class);
+
+	@Autowired
+	private NativeDataMapper nativeDataMapper;
+
+	private final int queueLength = 10;
+	/**
+	 * 报警信息队列<br />
+	 * key为编组id<br />
+	 * 每个队列默认10个
+	 */
+	protected Map<Integer, Queue<AlarmData>> alarmQueueMap = null;
+	/** 车厢状态 */
+	protected Map<String, CarAlarm> carStateMap = null;
+
+	protected Map<Integer, NetWorkFeedback> netWorkFeedbackMap = null;
+
+	public void initData() {
+		// 初始化报警
+		alarmQueueMap = new HashMap<Integer, Queue<AlarmData>>();
+
+		Queue<AlarmData> queue = new ArrayBlockingQueue<AlarmData>(queueLength);
+		for (int i = 0; i < 10; i++) {
+			AlarmData alarmData = new AlarmData();
+			alarmData.setAlarmContent("测试报警" + i);
+			if (i % 2 == 0) {
+				alarmData.setCarId(1);
+			} else {
+				alarmData.setCarId(2);
+			}
+			alarmData.setAlarmTime(DateUtil.getCurrentDate());
+
+			queue.offer(alarmData);
+		}
+
+		alarmQueueMap.put(1, queue);
+
+		// 初始化车厢状态
+		carStateMap = new HashMap<String, CarAlarm>();
+		netWorkFeedbackMap = new HashMap<Integer, NetWorkFeedback>();
+	}
+
+	/**
+	 * 初始化
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月18日 下午3:19:30
+	 * @param port
+	 *            监听端口
+	 * @param logPath
+	 *            日志目录
+	 * @param dataFeedback
+	 *            回调对象
+	 */
+	public native void init(int port, String logPath, NativeDataFeedback dataFeedback);
+
+	/**
+	 * 组网
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月18日 下午2:18:32
+	 * @return int 消息序号
+	 */
+	public native int buildNetWork(NetWorkData netWorkData);
+
+	/**
+	 * 解网
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月18日 下午2:56:18
+	 * @return
+	 */
+	public native int destoryNetWork(NetWorkData netWorkData);
+
+	/**
+	 * 销毁
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月19日 上午11:43:57
+	 */
+	public native void destory();
+
+	@Override
+	public void receBuildNetWork(NetWorkFeedback netWorkFeedback) {
+		logger.info("收到组网进度回调：msgNo=" + netWorkFeedback.getMsgNo() + "   timestamp=" + netWorkFeedback.getTimestamp() + "  剩余车厢"
+				+ netWorkFeedback.getCarNoList() == null ? -1 : netWorkFeedback.getCarNoList().size());
+		netWorkFeedbackMap.put(netWorkFeedback.getMsgNo(), netWorkFeedback);
+	}
+
+	@Override
+	public void receDestoryNetWork(NetWorkFeedback netWorkFeedback) {
+		logger.info("收到解网进度回调：msgNo=" + netWorkFeedback.getMsgNo() + "   timestamp=" + netWorkFeedback.getTimestamp() + "  剩余车厢"
+				+ netWorkFeedback.getCarNoList() == null ? -1 : netWorkFeedback.getCarNoList().size());
+		netWorkFeedbackMap.put(netWorkFeedback.getMsgNo(), netWorkFeedback);
+	}
+
+	@Override
+	public void receSensorData(SensorData sensorData) {
+		GroupCar groupCar = nativeDataMapper.getGroupCarByCarNo(sensorData.getCarNo());
+		if(groupCar == null){
+			return;
+		}
+		
+		DataBatch dataBatch = new DataBatch();
+		dataBatch.setGroupId(groupCar.getGroupId());
+		dataBatch.setCarId(groupCar.getCarId());
+		dataBatch.setCreateTime(DateUtil.getCurrentDate());
+		dataBatch.setBatchTime(DateUtil.getCurrentDate());
+
+		nativeDataMapper.saveBatchData(dataBatch);
+
+		List<SensorDataSub> dataSubs = sensorData.getDataSubs();
+		if (dataSubs != null) {
+			for (int i = 0; i < dataSubs.size(); i++) {
+				long timestamp = dataSubs.get(i).getTimestamp();
+				List<BigDecimal> sensorDataValue = dataSubs.get(i).getSensorDataValue();
+
+				List<SensorDataBatch> dataBatchs = new ArrayList<SensorDataBatch>();
+				for (int j = 0; j < sensorDataValue.size(); j++) {
+					SensorDataBatch sensorDataBatch = new SensorDataBatch();
+
+					sensorDataBatch.setBatchId(dataBatch.getBatchId());
+					sensorDataBatch.setSensorType(i);
+					sensorDataBatch.setDataTimestamp(timestamp);
+					sensorDataBatch.setDataValue(sensorDataValue.get(j));
+
+					dataBatchs.add(sensorDataBatch);
+
+					if (i == 0) {// 第一个数据是列车管，每10毫秒采集一次
+						timestamp += 10;
+					} else {// 其它传感器每 2 毫秒采集一次
+						timestamp += 2;
+					}
+
+				}
+
+				// 保存
+				nativeDataMapper.saveSensorData(dataBatchs);
+			}
+		}
+	}
+
+	@Override
+	public void receAlarmData(AlarmData alarmData) {
+		// 查询车次所在的编组
+		GroupCar groupCar = nativeDataMapper.getGroupCarByCarNo(alarmData.getCarNo());
+		if (groupCar == null) {
+			logger.info(alarmData.getCarNo() + "  尚未编组");
+			return;
+		}
+
+		alarmData.setGroupId(groupCar.getGroupId());
+		alarmData.setCarId(groupCar.getCarId());
+		alarmData.setAlarmTime(DateUtil.getDate(alarmData.getAlarmTimestamp()));
+		alarmData.setCreateTime(DateUtil.getCurrentDate());
+		alarmData.setAlarmContent(SystemConfig.alarmMap.get(alarmData.getAlarmFlag()));
+
+		// 存储报警信息
+		nativeDataMapper.saveAlarm(alarmData);
+
+		// 在内存中存储
+		Queue<AlarmData> alarmQueue = alarmQueueMap.get(groupCar.getGroupId());
+		if (alarmQueue == null) {
+			alarmQueue = new ArrayBlockingQueue<AlarmData>(queueLength);
+		}
+		int size = alarmQueue.size();
+		if (size >= queueLength) {// 队列已满，移除列首元素
+			alarmQueue.poll();
+		}
+		alarmQueue.offer(alarmData);
+
+		// 修改车辆报警状态
+		CarAlarm car = carStateMap.get(alarmData.getCarNo());
+		if (car == null) {
+			car = new CarAlarm();
+			car.setCarNo(alarmData.getCarNo());
+			carStateMap.put(car.getCarNo(), car);
+		}
+		car.setAlarmId(alarmData.getAlarmId());
+		car.setAlarmState(2);
+		car.setAlarmFlag(alarmData.getAlarmFlag());
+		car.setAlarmContent(alarmData.getAlarmContent());
+		car.setAlarmTimestamp(alarmData.getAlarmTimestamp());
+	}
+
+	@Override
+	public void receDeviceStateInit(List<Car> carStateList) {
+		if (carStateList != null) {
+			for (int i = 0; i < carStateList.size(); i++) {
+				Car car = carStateList.get(i);
+
+				this.receDeviceStateChange(car);
+			}
+		}
+	}
+
+	@Override
+	public void receDeviceStateChange(Car car) {
+		CarAlarm carAlarm = carStateMap.get(car.getCarNo());
+		if (carAlarm == null) {
+			carAlarm = new CarAlarm();
+			carAlarm.setCarNo(car.getCarNo());
+			carStateMap.put(car.getCarNo(), carAlarm);
+		}
+		carAlarm.setCarOnlineState(car.getCarOnlineState());
+	}
+
+}

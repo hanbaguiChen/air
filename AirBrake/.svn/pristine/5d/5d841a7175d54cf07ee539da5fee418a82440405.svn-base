@@ -1,0 +1,8 @@
+#文件保存路径，留空或auto将保存到tomcat目录下
+file.savePath=auto
+#在web.xml中配置的项目
+webAppRootKey=mts_airbrake.root
+#token有效期，单位天，留空默认值30天
+token.maxAge=30
+ffmpeg.path=D\:/ffmpeg.exe
+ffmpeg.resolution=176x144

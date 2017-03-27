@@ -1,0 +1,33 @@
+package com.cnmts.baseinfo.exception;
+
+/**
+ * 车厢不存在
+ * 
+ * @author 王璞
+ * @date 2017年1月17日 下午5:49:03
+ * @version 1.0
+ */
+public class CarNotExistException extends Exception {
+
+	private static final long serialVersionUID = 5639407311531936864L;
+
+	private int carId;
+	private String carNo;
+
+	public CarNotExistException() {
+
+	}
+
+	public CarNotExistException(int carId, String carNo) {
+		this.carId = carId;
+		this.carNo = carNo;
+	}
+
+	public int getCarId() {
+		return carId;
+	}
+
+	public String getCarNo() {
+		return carNo;
+	}
+}

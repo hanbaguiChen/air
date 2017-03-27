@@ -1,0 +1,29 @@
+package com.cnmts.baseinfo.exception;
+
+public class TrainHasNotUntieException extends Exception {
+
+	private static final long serialVersionUID = -6687922266567961534L;
+
+	/** 列车id */
+	private int trainId;
+	/** 列车车次 */
+	private String trainName;
+
+	public TrainHasNotUntieException() {
+
+	}
+
+	public TrainHasNotUntieException(int trainId, String trainName) {
+		super(trainName + "  尚未解编");
+		this.trainId = trainId;
+		this.trainName = trainName;
+	}
+
+	public String getTrainName() {
+		return trainName;
+	}
+
+	public int getTrainId() {
+		return trainId;
+	}
+}

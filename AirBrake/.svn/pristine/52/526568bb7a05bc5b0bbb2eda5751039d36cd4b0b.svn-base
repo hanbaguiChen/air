@@ -1,0 +1,143 @@
+/*
+*TabCar.java
+* Compyright(C) 2010-2019  千里时空
+* All rights reserved.
+* ---------------------------
+* 2017-01-10 Created
+*/
+package com.cnmts.traffic.bean;
+
+import java.io.Serializable;
+
+
+public class TabCar implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2622638297976923781L;
+
+	/**
+     * 车辆id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private int carId;
+
+    /**
+     * 车底号/车厢编号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private String carNo;
+
+    /**
+     * IMEI编号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private String IMEI;
+
+    /**
+     * 手机号码
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private String phoneNum;
+
+    /**
+     * 删除标记，0正常，1已删除
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    private Short deleteStatus;
+
+    /**
+     * 车辆id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public int getCarId() {
+        return carId;
+    }
+
+    /**
+     * 车辆id
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setCarId(int carId) {
+        this.carId = carId;
+    }
+
+    /**
+     * 车底号/车厢编号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public String getCarNo() {
+        return carNo;
+    }
+
+    /**
+     * 车底号/车厢编号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setCarNo(String carNo) {
+        this.carNo = carNo;
+    }
+
+    /**
+     * IMEI编号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public String getIMEI() {
+        return IMEI;
+    }
+
+    /**
+     * IMEI编号
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setIMEI(String IMEI) {
+        this.IMEI = IMEI;
+    }
+
+    /**
+     * 手机号码
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public String getPhoneNum() {
+        return phoneNum;
+    }
+
+    /**
+     * 手机号码
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
+    }
+
+    /**
+     * 删除标记，0正常，1已删除
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public Short getDeleteStatus() {
+        return deleteStatus;
+    }
+
+    /**
+     * 删除标记，0正常，1已删除
+     *
+     * @mbggenerated Tue Jan 10 15:33:13 CST 2017
+     */
+    public void setDeleteStatus(Short deleteStatus) {
+        this.deleteStatus = deleteStatus;
+    }
+}

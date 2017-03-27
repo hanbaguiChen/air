@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.system.dao.UserMapper">
+	
+	<!-- 查询用户 -->
+	<select id="getUserByLogin" resultType="com.cnmts.system.bean.User">
+		SELECT
+			view_user.userId,
+			view_user.loginName,
+			view_user.loginPassword,
+			view_user.userName,
+			view_user.mobilePhone,
+			view_user.roleId,
+			view_user.avatarFileId,
+			view_user.avatarFilePath,
+			view_user.avatarPreviewFilePath,
+			view_user.gender,
+			view_user.eMail,
+			view_user.userState
+		FROM
+			view_user
+		WHERE
+			view_user.loginName = #{loginName}
+		AND view_user.loginPassword = #{loginPassword}
+		LIMIT 1
+	</select>
+	
+	<!-- 添加用户 -->
+	<insert id="addUser" useGeneratedKeys="true" keyColumn="userId" keyProperty="userId">
+		INSERT INTO sys_user (
+			loginName,
+			loginPassword,
+			userName,
+			mobilePhone,
+			roleId,
+			gender,
+			eMail,
+			userState
+		) VALUES (
+			#{loginName},
+			#{loginPassword},
+			#{userName},
+			#{mobilePhone},
+			#{roleId},
+			#{gender},
+			#{eMail},
+			#{userState}
+		)
+	</insert>
+	
+	
+	<!-- 查询用户信息 -->
+	<select id="getUserByUserId" resultType="com.cnmts.system.bean.User">
+		SELECT
+			view_user.userId,
+			view_user.loginName,
+			view_user.loginPassword,
+			view_user.userName,
+			view_user.mobilePhone,
+			view_user.roleId,
+			view_user.avatarFileId,
+			view_user.avatarFilePath,
+			view_user.avatarPreviewFilePath,
+			view_user.gender,
+			view_user.eMail,
+			view_user.userState
+		FROM
+			view_user
+		WHERE
+			1 = 1
+		AND view_user.userId = #{userId}
+	</select>
+	<!-- 查询用户信息 -->
+	<select id="getUserByLoginName" resultType="com.cnmts.system.bean.User">
+		SELECT
+			view_user.userId,
+			view_user.loginName,
+			view_user.loginPassword,
+			view_user.userName,
+			view_user.mobilePhone,
+			view_user.roleId,
+			view_user.avatarFileId,
+			view_user.avatarFilePath,
+			view_user.avatarPreviewFilePath,
+			view_user.gender,
+			view_user.eMail,
+			view_user.userState
+		FROM
+			view_user
+		WHERE
+			1 = 1
+		AND view_user.loginName = #{loginName}
+	</select>
+	
+	<!-- 查询用户信息 -->
+	<select id="getUserByRoleId" resultType="com.cnmts.system.bean.User">
+		SELECT
+			sys_user.userId,
+			sys_user.userName
+		FROM
+			sys_user
+		WHERE
+			1 = 1
+		AND sys_user.roleId = #{roleId}
+	</select>
+	
+	<!-- 更新用户信息 -->
+	<update id="updateUser">
+		UPDATE sys_user
+		SET userName = #{userName},
+		 mobilePhone = #{mobilePhone},
+		 gender = #{gender},
+		 <if test="roleId>0">
+		 	roleId = #{roleId},
+		 </if>
+		 eMail = #{eMail}
+		WHERE
+			userId = #{userId}
+	</update>
+	
+	<!-- 更新用户头像 -->
+	<update id="updateUserAvatar">
+		UPDATE sys_user
+		SET 
+		 avatarFileId = #{fileId}
+		WHERE
+			userId = #{userId}
+	</update>
+	
+	<!-- 分页查询用户信息 -->
+	<select id="getUserListByPage" resultType="com.cnmts.system.bean.User">
+		SELECT
+			view_user.userId,
+			view_user.loginName,
+			view_user.loginPassword,
+			view_user.userName,
+			view_user.mobilePhone,
+			view_user.roleId,
+			view_user.avatarFileId,
+			view_user.avatarFilePath,
+			view_user.avatarPreviewFilePath,
+			view_user.gender,
+			view_user.eMail,
+			view_user.userState
+		FROM
+			view_user
+		WHERE
+			1 = 1
+		<if test="loginName != null and loginName != '' ">
+			AND view_user.loginName LIKE CONCAT('%',#{loginName},'%')
+		</if>
+		<if test="mobilePhone != null and mobilePhone != '' ">
+			AND view_user.mobilePhone LIKE CONCAT('%',#{mobilePhone},'%')
+		</if>
+		<if test="eMail != null and eMail != '' ">
+			AND view_user.eMail LIKE CONCAT('%',#{eMail},'%')
+		</if>
+		<if test="roleId != null and roleId > 0">
+			AND view_user.roleId = #{roleId}
+		</if>
+	</select>
+	
+	<update id="resetUserPassword">
+		UPDATE sys_user
+		SET loginPassword = #{password}
+		WHERE
+			userId = #{userId}
+	</update>
+	
+	<select id="selectAllUser" resultType="com.cnmts.system.bean.User">
+		SELECT
+			view_user.userId,
+			view_user.loginName,
+			view_user.loginPassword,
+			view_user.userName,
+			view_user.mobilePhone,
+			view_user.roleId,
+			view_user.avatarFileId,
+			view_user.avatarFilePath,
+			view_user.avatarPreviewFilePath,
+			view_user.gender,
+			view_user.eMail,
+			view_user.userState
+		FROM
+			view_user
+		WHERE
+			1 = 1
+	</select>
+	
+	<update id="updateUserState">
+	   UPDATE sys_user
+		SET 
+		userState = #{userState}
+		WHERE
+			userId = #{userId}
+	</update>
+	
+	<!-- 更新用户token -->
+	<update id="updateUserToken">
+		UPDATE sys_user
+		SET userToken = #{userToken},
+		 userTokenCreateTime = #{userTokenCreateTime}
+		WHERE
+			userId = #{userId}
+	</update>
+	<select id="getUserByUserToken" resultType="com.cnmts.system.bean.User">
+		SELECT
+			view_user.userId,
+			view_user.loginName,
+			view_user.loginPassword,
+			view_user.userName,
+			view_user.mobilePhone,
+			view_user.roleId,
+			view_user.avatarFileId,
+			view_user.avatarFilePath,
+			view_user.avatarPreviewFilePath,
+			view_user.gender,
+			view_user.eMail,
+			view_user.userState,
+			view_user.userTokenCreateTime
+		FROM
+			view_user
+		WHERE
+			1 = 1
+		AND view_user.userToken = #{userToken}
+	</select>
+</mapper>

@@ -1,0 +1,87 @@
+package com.cnmts.data.bean;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * 组网数据
+ * 
+ * @author 王璞
+ * @date 2017年1月18日 下午2:23:22
+ * @version 1.0
+ */
+public class NetWorkData implements Serializable {
+
+	private static final long serialVersionUID = 8213437344043102572L;
+	/** 车次 */
+	private String trainName;
+	/** 起始站名 */
+	private String begStationName;
+	/** 终到站名 */
+	private String endStationName;
+	/** 无线自组网网络ID */
+	private String zigbeeId;
+	/** 网络认证KEY */
+	private String zigbeeKey;
+	/** 主机车厢编号 */
+	private String mainCarNo;
+	/** 普通车辆编号 列表 */
+	private List<String> carNoList;
+
+	public String getTrainName() {
+		return trainName;
+	}
+
+	public void setTrainName(String trainName) {
+		this.trainName = trainName;
+	}
+
+	public String getBegStationName() {
+		return begStationName;
+	}
+
+	public void setBegStationName(String begStationName) {
+		this.begStationName = begStationName;
+	}
+
+	public String getEndStationName() {
+		return endStationName;
+	}
+
+	public void setEndStationName(String endStationName) {
+		this.endStationName = endStationName;
+	}
+
+	public String getZigbeeId() {
+		return zigbeeId;
+	}
+
+	public void setZigbeeId(String zigbeeId) {
+		this.zigbeeId = zigbeeId;
+	}
+
+	public String getZigbeeKey() {
+		return zigbeeKey;
+	}
+
+	public void setZigbeeKey(String zigbeeKey) {
+		this.zigbeeKey = zigbeeKey;
+	}
+
+	public String getMainCarNo() {
+		return mainCarNo;
+	}
+
+	public void setMainCarNo(String mainCarNo) {
+		this.mainCarNo = mainCarNo;
+	}
+
+	public List<String> getCarNoList() {
+		return carNoList;
+	}
+
+	public void setCarNoList(List<String> carNoList) {
+		this.carNoList = carNoList;
+	}
+
+}

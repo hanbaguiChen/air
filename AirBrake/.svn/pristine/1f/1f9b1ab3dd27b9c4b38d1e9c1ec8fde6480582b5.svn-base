@@ -1,0 +1,38 @@
+package com.cnmts.data.bean;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * 数据
+ * 
+ * @author 王璞
+ * @date 2017年1月18日 下午3:06:24
+ * @version 1.0
+ */
+public class SensorDataSub implements Serializable {
+
+	private static final long serialVersionUID = 1455398477585761629L;
+	/** 时间戳 */
+	private long timestamp;
+	/** 数据集合 */
+	private List<BigDecimal> sensorDataValue;
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public List<BigDecimal> getSensorDataValue() {
+		return sensorDataValue;
+	}
+
+	public void setSensorDataValue(List<BigDecimal> sensorDataValue) {
+		this.sensorDataValue = sensorDataValue;
+	}
+
+}

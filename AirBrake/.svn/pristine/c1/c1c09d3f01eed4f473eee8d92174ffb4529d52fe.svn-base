@@ -1,0 +1,9 @@
+jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://192.168.1.70:3306/air_brake?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true
+jdbc.username=root
+jdbc.password=admin
+database.mysqlpath=D\:\\mysql-5.5.46-winx64\\bin
+database.host=192.168.1.70
+database.dbname=mobile_work
+database.backupDes=E\:\\\\backup
+database.backupTime=0 0 1 * * ? 

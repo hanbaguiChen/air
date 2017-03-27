@@ -1,0 +1,59 @@
+package com.cnmts.traffic.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.Train;
+import com.cnmts.traffic.dao.TrafficMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, readOnly = true)
+public class TrafficService {
+
+	@Autowired
+	private TrafficMapper trafficMapper;
+
+	/**
+	 * 分页查询列车列表
+	 * 
+	 * @author 陈洁
+	 * @date 2017年1月10日 下午5:02:43
+	 * @param page
+	 * @param search
+	 * @return
+	 */
+	public PageInfo<Train> getTrainListByPage(PageInfo<Train> page, Map<String, Object> search) {
+		PageHelper.startPage(page.getPageNum(), page.getPageSize());
+		List<Train> trainList = trafficMapper.getTrainListByPage(search);
+		page = new PageInfo<Train>(trainList);
+		return page;
+	}
+	
+	public Train getTrainByTrainId(int trainId) {
+		return trafficMapper.getTrainByTrainId(trainId);
+	}
+	public Train getTrainByTrainName(String trainName) {
+		return trafficMapper.getTrainByTrainName(trainName);
+	}
+	public Train likeTrainName(String trainName) {
+		return trafficMapper.likeTrainName(trainName);
+	}
+	
+	public List<Car> getCarsByTrainId(int trainId) {
+		return trafficMapper.getCarsByTrainId(trainId);
+	}
+	
+	public List<Car> getAllCars() {
+		return trafficMapper.getAllCars();
+	}
+
+}

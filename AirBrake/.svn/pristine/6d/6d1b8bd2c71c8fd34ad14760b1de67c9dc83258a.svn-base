@@ -1,0 +1,330 @@
+package com.cnmts.system.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cnmts.common.bean.Attachment;
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.common.bean.ResultType;
+import com.cnmts.common.bean.SessionKey;
+import com.cnmts.common.bean.SystemConfig;
+import com.cnmts.common.exception.InvalidDataException;
+import com.cnmts.common.service.FileService;
+import com.cnmts.common.service.UserOpLogService;
+import com.cnmts.common.util.CookieUtil;
+import com.cnmts.common.util.SessionUtil;
+import com.cnmts.system.bean.User;
+import com.cnmts.system.exception.ForbiddenLoginException;
+import com.cnmts.system.exception.UserAlreadyExistedException;
+import com.cnmts.system.service.UserService;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 用户相关控制器
+ * 
+ * @author 王璞
+ * @date 2016年11月2日 上午11:04:26
+ * @version 1.0
+ */
+@Controller
+@RequestMapping(value = { "/user" })
+public class UserController {
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private UserOpLogService userOpLogService;
+
+	@Autowired
+	private FileService fileService;
+
+	/**
+	 * 根据 角色id查询用户
+	 * 
+	 * @param roleId
+	 * @return
+	 */
+	@RequestMapping(value = { "/getUserByRoleId" })
+	@ResponseBody
+	public JsonResult<List<User>> getUserByRoleId(int roleId) {
+		List<User> users = userService.getUserByRoleId(roleId);
+		return new JsonResult<List<User>>(users);
+	}
+
+	/**
+	 * 用户登录
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 上午11:04:39
+	 * @param userName
+	 *            用户名
+	 * @param password
+	 *            密码(MD5密文)
+	 * @return
+	 */
+	@RequestMapping(value = { "/userLogin" })
+	@ResponseBody
+	public JsonResult<User> userLogin(User user, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+		JsonResult<User> jsonResult = new JsonResult<User>();
+		try {
+			String userToken = CookieUtil.getCookieValueByKey(SessionKey.USER_TOKEN.getKey(), request);
+
+			User userFromDB = userService.getUserByLogin(user.getPlatform(), user.getLoginName(), user.getLoginPassword(), userToken);
+			if (userFromDB != null) {
+				// cookie有效期
+				int maxAgeSeconds = 3600 * 24 * SystemConfig.tokenMaxAge;
+				CookieUtil.setCookie(SessionKey.USER_TOKEN.getKey(), userFromDB.getUserToken(), maxAgeSeconds, response);
+				SessionUtil.setCurrentUser(session, userFromDB);
+				jsonResult.setObj(userFromDB);
+				userOpLogService.saveLog4UserLogin(userFromDB);
+			}
+		} catch (ForbiddenLoginException e) {
+			e.printStackTrace();
+			jsonResult.setCode(ResultType.FORBIDDEN_LOGIN);
+		} catch (InvalidDataException e) {
+			e.printStackTrace();
+			jsonResult.setCode(ResultType.INVALID_DATA);
+		}
+		return jsonResult;
+	}
+
+	/**
+	 * 分页查询用户列表
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 下午3:48:34
+	 * @param page
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping(value = { "/getUserListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<User>> getUserListByPage(PageInfo<User> page, User user) {
+		JsonResult<PageInfo<User>> jsonResult = new JsonResult<PageInfo<User>>();
+
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (StringUtils.isNotEmpty(user.getMobilePhone())) {
+			search.put("mobilePhone", user.getMobilePhone());
+		}
+		if (StringUtils.isNotEmpty(user.getLoginName())) {
+			search.put("loginName", user.getLoginName());
+		}
+		if (user.getRoleId() > 0) {
+			search.put("roleId", user.getRoleId());
+		}
+		if (StringUtils.isNotEmpty(user.geteMail())) {
+			search.put("eMail", user.geteMail());
+		}
+
+		PageInfo<User> pageInfo = userService.getUserListByPage(page, search);
+		jsonResult.setObj(pageInfo);
+
+		return jsonResult;
+	}
+
+	/**
+	 * 添加用户
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 下午3:06:47
+	 * @param user
+	 * @return
+	 * @throws InvalidDataException
+	 */
+	@RequestMapping(value = { "/addUser" })
+	@ResponseBody
+	public JsonResult<User> addUser(User user) throws InvalidDataException {
+		if (user == null || StringUtils.isEmpty(user.getLoginName()) || StringUtils.isEmpty(user.getLoginPassword())) {
+			throw new InvalidDataException("用户名或密码不能为空");
+		}
+		JsonResult<User> jsonResult = new JsonResult<User>(user);
+		try {
+			userService.addUser(user);
+		} catch (UserAlreadyExistedException e) {
+			jsonResult.setCode(ResultType.USER_ALREAD_EXISTED);
+		}
+		return jsonResult;
+	}
+
+	/**
+	 * 查询用户信息
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月4日 下午2:59:00
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = { "/getUserByUserId" })
+	@ResponseBody
+	public JsonResult<User> getUserByUserId(int userId) {
+		User user = userService.getUserByUserId(userId);
+		user.setLoginPassword(null);
+		return new JsonResult<User>(user);
+	}
+
+	/**
+	 * 更新用户信息
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 下午3:24:24
+	 * @param user
+	 * @return
+	 * @throws InvalidDataException
+	 */
+	@RequestMapping(value = { "/updateUser" })
+	@ResponseBody
+	public JsonResult<Boolean> updateUser(User user) throws InvalidDataException {
+		if (user == null) {
+			throw new InvalidDataException();
+		} else if (user.getUserId() <= 0) {
+			throw new InvalidDataException("用户id不合法");
+		}
+		userService.updateUser(user);
+		return new JsonResult<Boolean>(true);
+	}
+
+	/**
+	 * 更新用户头像
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 下午3:32:46
+	 * @param multipartFile
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = { "/updateUserAvatar" })
+	@ResponseBody
+	public JsonResult<User> updateUserAvatar(@RequestParam(name = "avatar") MultipartFile multipartFile, HttpSession session)
+			throws Exception {
+		User currentUser = SessionUtil.getCurrentUser(session);
+
+		Attachment attachment = fileService.saveFile(multipartFile, currentUser.getUserId());
+
+		// 更新session中的数据
+		currentUser.setAvatarFileId(attachment.getFileId());
+		currentUser.setAvatarFilePath(attachment.getFilePath());
+		// 更新数据库
+		userService.updateUserAvatar(currentUser.getUserId(), attachment.getFileId());
+
+		return new JsonResult<User>(currentUser);
+	}
+
+	/**
+	 * 删除用户
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 下午3:41:04
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = { "/deleteUserById" })
+	@ResponseBody
+	public JsonResult<Boolean> deleteUserById(int userId) {
+		userService.deleteUserById(userId);
+		return new JsonResult<Boolean>(true);
+	}
+
+	/**
+	 * 用户退出登录
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月2日 下午3:04:09
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = { "/userLogout" })
+	@ResponseBody
+	public JsonResult<Boolean> userLogout(HttpSession session) {
+		User currentUser = SessionUtil.getCurrentUser(session);
+		if (currentUser != null) {
+			userOpLogService.saveLog4UserLogout(currentUser);
+			userService.deleteUserToken(currentUser.getUserId());
+			session.removeAttribute(SessionKey.CURRENT_USER.getKey());
+		}
+		return new JsonResult<Boolean>(true);
+	}
+
+	/**
+	 * 重置密码
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月16日 下午6:09:49
+	 * @param password
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = { "/resetUserPassword" })
+	@ResponseBody
+	public JsonResult<Boolean> resetUserPassword(String password, int userId) {
+		userService.resetUserPassword(password, userId);
+		return new JsonResult<Boolean>(true);
+	}
+
+	/**
+	 * 用户自主修改密码
+	 * 
+	 * @author 王璞
+	 * @date 2016年11月17日 上午9:29:49
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param session
+	 * @return
+	 * @throws InvalidDataException
+	 */
+	@RequestMapping(value = { "/updatePassword" })
+	@ResponseBody
+	public JsonResult<Boolean> updatePassword(String oldPassword, String newPassword, HttpSession session) throws InvalidDataException {
+		if (StringUtils.isEmpty(oldPassword) || StringUtils.isEmpty(newPassword)) {
+			throw new InvalidDataException();
+		}
+		JsonResult<Boolean> jsonResult = new JsonResult<Boolean>();
+		int currentUserId = SessionUtil.getCurrentUserId(session);
+		User userByUserId = userService.getUserByUserId(currentUserId);
+		if (!oldPassword.equals(userByUserId.getLoginPassword())) {
+			jsonResult.setCode(ResultType.PASSWORD_NOT_EQUAL);
+		} else {
+			userService.resetUserPassword(newPassword, currentUserId);
+			jsonResult.setObj(true);
+		}
+		return jsonResult;
+	}
+
+	/**
+	 * 获取所以用户
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = { "/getAllUser" })
+	@ResponseBody
+	public JsonResult<List<User>> getAllUser() {
+		return new JsonResult<List<User>>(userService.getAllUser());
+	}
+
+	/**
+	 * 改变用户状态
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping(value = { "/updateUserState" })
+	@ResponseBody
+	public JsonResult<Boolean> updateUserState(User user) {
+		userService.updateUserState(user);
+		return new JsonResult<Boolean>(true);
+	}
+}

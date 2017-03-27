@@ -1,0 +1,18 @@
+package com.cnmts.traffic.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cnmts.traffic.bean.Car;
+import com.cnmts.traffic.bean.Train;
+
+public interface TrafficMapper {
+	
+	List<Train> getTrainListByPage(Map<String, Object> search);
+	Train getTrainByTrainId(@Param("trainId") int trainId);
+	List<Car> getCarsByTrainId(@Param("trainId") int trainId);
+	Train getTrainByTrainName(@Param("trainName") String trainName);
+
+}

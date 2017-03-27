@@ -1,0 +1,88 @@
+/*
+ *TabTrain.java
+ * Compyright(C) 2010-2019  千里时空
+ * All rights reserved.
+ * ---------------------------
+ * 2017-01-10 Created
+ */
+package com.cnmts.traffic.bean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 列车实体类
+ * 
+ * @author 陈洁
+ * @date 2017年1月10日 下午5:00:57
+ * @version 1.0
+ */
+public class Train extends Group implements Serializable {
+
+	private static final long serialVersionUID = -2622638297976923781L;
+
+	/** 列车ID */
+	private int trainId;
+	/** 列车名称 */
+	private String trainName;
+	/** 最后一次编组时间 */
+	private Date lastGroupTime;
+	/** 最后一次编组id */
+	private int lastGroupId;
+	/** 删除标记，0正常1已删除 */
+	private int deleteStatus;
+	/** 1正常，2报警 */
+	private int alarmState;
+
+	@Override
+	public int getTrainId() {
+		return trainId;
+	}
+
+	@Override
+	public void setTrainId(int trainId) {
+		this.trainId = trainId;
+	}
+
+	public String getTrainName() {
+		return trainName;
+	}
+
+	public void setTrainName(String trainName) {
+		this.trainName = trainName;
+	}
+
+	public Date getLastGroupTime() {
+		return lastGroupTime;
+	}
+
+	public void setLastGroupTime(Date lastGroupTime) {
+		this.lastGroupTime = lastGroupTime;
+	}
+
+	public int getLastGroupId() {
+		return lastGroupId;
+	}
+
+	public void setLastGroupId(int lastGroupId) {
+		this.lastGroupId = lastGroupId;
+	}
+
+	public int getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(int deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	public int getAlarmState() {
+		return alarmState;
+	}
+
+	public void setAlarmState(int alarmState) {
+		this.alarmState = alarmState;
+	}
+	
+
+}

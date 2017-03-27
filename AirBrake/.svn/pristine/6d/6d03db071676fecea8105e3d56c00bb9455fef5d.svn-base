@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.alarm.dao.AlarmDealMapper">
+ <insert id="saveDeal" useGeneratedKeys="true" keyColumn="dealId" keyProperty="dealId">
+		INSERT INTO tab_alarm_deal (
+			tab_alarm_deal.dealContent,
+			tab_alarm_deal.alarmId,
+			tab_alarm_deal.dealUserId,
+			tab_alarm_deal.dealTime
+		)VALUES(
+			#{dealContent},
+			#{alarmId},
+			#{dealUserId},
+			#{dealtime}
+		)
+	</insert>
+	<select id="getDealByAlarmId" resultType="com.cnmts.alarm.bean.AlarmDeal">
+	     SELECT
+			tab_alarm_deal.dealId,
+			tab_alarm_deal.dealContent,
+			tab_alarm_deal.dealUserId,
+			tab_alarm_deal.dealTime,
+			tab_alarm_deal.alarmId
+		 FROM
+			tab_alarm_deal
+		where
+		    1=1
+		<if test="alarmId != null and alarmId > 0">
+		    AND  tab_alarm_deal.alarmId = #{alarmId}
+		</if>
+	</select>
+ 
+</mapper>

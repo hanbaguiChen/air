@@ -1,0 +1,101 @@
+package com.cnmts.data.service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cnmts.common.bean.SystemConfig;
+import com.cnmts.common.util.DateUtil;
+import com.cnmts.data.bean.AlarmData;
+import com.cnmts.data.dao.NativeDataMapper;
+import com.cnmts.traffic.bean.GroupCar;
+
+@Service
+public class NativeDataService {
+
+	private Logger logger = Logger.getLogger(NativeDataService.class);
+
+	@Autowired
+	private NativeDataMapper nativeDataMapper;
+
+	private final int queueLength = 10;
+	/**
+	 * 报警信息队列<br />
+	 * key为编组id<br />
+	 * 每个队列默认10个
+	 */
+	private Map<Integer, Queue<AlarmData>> alarmQueueMap = null;
+
+	public void init() {
+		alarmQueueMap = new HashMap<Integer, Queue<AlarmData>>();
+
+		Queue<AlarmData> queue = new ArrayBlockingQueue<AlarmData>(queueLength);
+		for (int i = 0; i < 10; i++) {
+			AlarmData alarmData = new AlarmData();
+			alarmData.setAlarmContent("测试报警" + i);
+			if (i % 2 == 0) {
+				alarmData.setCarId(1);
+			} else {
+				alarmData.setCarId(2);
+			}
+			alarmData.setAlarmTime(DateUtil.getCurrentDate());
+			
+			queue.offer(alarmData);
+		}
+
+		alarmQueueMap.put(1, queue);
+	}
+
+	/**
+	 * 查询报警列表
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月11日 上午10:09:59
+	 * @param groupId
+	 *            编组ID
+	 * @return
+	 */
+	public Queue<AlarmData> getAlarmListByGroupId(int groupId) {
+		return alarmQueueMap.get(groupId);
+	}
+
+	/**
+	 * 收到报警信息
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月10日 下午4:30:18
+	 */
+	public void receiveAlarm(AlarmData alarmData) {
+		// 查询车次所在的编组
+		GroupCar groupCar = nativeDataMapper.getGroupCarByCarNo(String.valueOf(alarmData.getCarriageId()));
+		if (groupCar == null) {
+			logger.info(alarmData.getCarriageId() + "  尚未编组");
+			return;
+		}
+
+		alarmData.setGroupId(groupCar.getGroupId());
+		alarmData.setCarId(groupCar.getCarId());
+		alarmData.setAlarmTime(DateUtil.getDate(alarmData.getAlarmTimestamp()));
+		alarmData.setCreateTime(DateUtil.getCurrentDate());
+		alarmData.setAlarmContent(SystemConfig.alarmMap.get(alarmData.getAlarmFlag()));
+		// TODO 设置报警内容
+		// TODO 存储报警信息
+
+		// 在内存中存储
+		Queue<AlarmData> alarmQueue = alarmQueueMap.get(groupCar.getGroupId());
+		if (alarmQueue == null) {
+			alarmQueue = new ArrayBlockingQueue<AlarmData>(queueLength);
+		}
+		int size = alarmQueue.size();
+		if (size >= queueLength) {// 队列已满，移除列首元素
+			alarmQueue.poll();
+		}
+		alarmQueue.offer(alarmData);
+	}
+
+}

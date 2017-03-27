@@ -1,0 +1,31 @@
+package com.cnmts.traffic.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cnmts.traffic.bean.TabTrain;
+import com.cnmts.traffic.dao.TrafficMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, readOnly = true)
+public class TrafficService {
+	
+	@Autowired
+	private TrafficMapper trafficMapper;
+	
+	public PageInfo<TabTrain> getTrainListByPage(PageInfo<TabTrain> page, Map<String, Object> search) {
+		PageHelper.startPage(page.getPageNum(), page.getPageSize());
+		List<TabTrain> trainList = trafficMapper.getTrainListByPage(search);
+		page = new PageInfo<TabTrain>(trainList);
+		return page;
+	}
+
+}

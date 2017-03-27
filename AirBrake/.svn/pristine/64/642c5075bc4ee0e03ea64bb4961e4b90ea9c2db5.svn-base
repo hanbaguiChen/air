@@ -1,0 +1,28 @@
+package com.cnmts.baseinfo.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cnmts.traffic.bean.Group;
+import com.cnmts.traffic.bean.GroupCar;
+import com.cnmts.traffic.bean.Train;
+
+public interface TrainMapper {
+
+	List<Train> getTrainListByPage(Map<String, Object> search);
+
+	Train getTrainByTrainId(@Param("trainId") int trainId);
+
+	Train getTrainByTrainName(@Param("trainName") String trainName);
+
+	void saveTrain(Train train);
+
+	void saveGroup(Group group);
+
+	void updateTrainForGroup(Train train);
+
+	void saveGroupCars(List<GroupCar> groupCars);
+
+}

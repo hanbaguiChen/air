@@ -1,0 +1,52 @@
+package com.cnmts.alarm.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cnmts.alarm.bean.AlarmDeal;
+import com.cnmts.alarm.dao.AlarmDealMapper;
+import com.cnmts.baseinfo.exception.CarNoAlreadExistException;
+import com.cnmts.common.util.DateUtil;
+import com.cnmts.common.util.SessionUtil;
+import com.cnmts.system.bean.User;
+
+@Service
+@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, readOnly = true)
+public class AlarmDealService {
+	@Autowired
+	private AlarmDealMapper alarmDealMapper;
+
+	/**
+	 * 保存报警处理信息
+	 * 
+	 * @author 陈洁
+	 * @date 2017年2月7日
+	 * @param alarmDeal
+	 */
+	@Transactional(readOnly = false, rollbackFor = { CarNoAlreadExistException.class })
+	public void saveDealAlarm(AlarmDeal alarmDeal) {
+		AlarmDeal deal = new AlarmDeal();
+		User currentUser = SessionUtil.getCurrentUser();
+		deal.setDealContent(alarmDeal.getDealContent());
+		deal.setAlarmId(alarmDeal.getAlarmId());
+		deal.setDealUserId(currentUser.getUserId());
+		deal.setDealtime(DateUtil.getCurrentDate());
+		alarmDealMapper.saveDeal(deal);
+	}
+
+	/**
+	 * 通过alarmId获取处理内容
+	 * 
+	 * @author 陈洁
+	 * @date 2017年2月7日
+	 * @param alarmId
+	 * @return
+	 */
+	public AlarmDeal getDealByAlarmId(int alarmId) {
+		return alarmDealMapper.getDealByAlarmId(alarmId);
+	}
+
+}

@@ -1,0 +1,46 @@
+package com.cnmts.baseinfo.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cnmts.common.bean.JsonResult;
+import com.cnmts.traffic.bean.Train;
+import com.cnmts.traffic.service.TrafficService;
+import com.github.pagehelper.PageInfo;
+
+@Controller
+@RequestMapping(value = { "/train" })
+public class TrainController {
+
+	@Autowired
+	private TrafficService trafficService;
+
+	/**
+	 * 分页查询列车
+	 * 
+	 * @author 王璞
+	 * @date 2017年1月12日 下午2:35:50
+	 * @param page
+	 * @param train
+	 * @return
+	 */
+	@RequestMapping(value = { "/getTrainListByPage" })
+	@ResponseBody
+	public JsonResult<PageInfo<Train>> getTrainListByPage(PageInfo<Train> page, Train train) {
+		JsonResult<PageInfo<Train>> jsonResult = new JsonResult<PageInfo<Train>>();
+		Map<String, Object> search = new HashMap<String, Object>();
+		if (StringUtils.isNotEmpty(train.getTrainName())) {
+			search.put("trainName", train.getTrainName());
+		}
+		PageInfo<Train> pageInfo = trafficService.getTrainListByPage(page, search);
+		jsonResult.setObj(pageInfo);
+		return jsonResult;
+	}
+
+}

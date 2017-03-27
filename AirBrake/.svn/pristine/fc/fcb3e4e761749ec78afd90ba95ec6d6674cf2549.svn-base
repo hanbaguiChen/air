@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.traffic.dao.TrafficMapper">
+
+	<!-- <resultMap type="com.cnmts.traffic.bean.Train" id="trainGroupMap"> 
+		<id property="trainId" column="trainId"/> <result property="trainName" column="trainName"/> 
+		<association property="group" javaType="com.cnmts.traffic.bean.Group"> <id 
+		property="groupId" column="groupId"/> <result property="zigbeeId" column="zigbeeId"/> 
+		<result property="zigbeeKey" column="zigbeeKey"/> </association> </resultMap> -->
+
+	<!-- 分页查询车次信息 -->
+	<select id="getTrainListByPage" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+			tab_train.trainId,
+			tab_train.trainName,
+			tab_group.groupId,
+			tab_group.zigbeeId,
+			tab_group.zigbeeKey,
+			tab_group.begStationId,
+			begStation.stationName as begStationName,
+			tab_group.endStationId,
+			endStation.stationName as endStationName,
+			tab_group.createTime,
+			tab_group.totalCarNum,
+			tab_group.groupState,
+			tab_group.plaitSetState,
+			tab_group.untieSetState
+		FROM
+		tab_train
+		LEFT JOIN tab_group ON tab_group.groupId = tab_train.lastGroupId
+
+		LEFT JOIN tab_station begStation ON tab_group.begStationId =
+		begStation.stationId
+		LEFT JOIN tab_station endStation ON tab_group.endStationId =
+		endStation.stationId
+		WHERE
+			1 = 1
+		<if test="trainName != null and trainName != '' ">
+			AND tab_train.trainName LIKE CONCAT('%',#{trainName},'%')
+		</if>
+	</select>
+	<select id="getGroupList" resultType="com.cnmts.traffic.bean.Group">
+	SELECT
+		tab_group.groupId,
+		tab_group.trainId,
+		tab_group.createTime,
+		tab_group.zigbeeId,
+		tab_group.zigbeeKey,
+		tab_group.begStationId,
+		tab_group.endStationId,
+		tab_group.groupState,
+		tab_group.plaitSetState,
+		tab_group.untieSetState,
+		tab_group.opUserId,
+		tab_group.totalCarNum
+	FROM
+		tab_group
+	WHERE
+		1 = 1
+		<if test="begTime!=null">
+			AND tab_group.createTime >=#{begTime}
+		</if>
+		<if test="endTime!=null">
+			AND #{endTime} >= tab_group.createTime
+		</if>
+	</select>
+	<!-- 查询列车信息 -->
+	<select id="getTrainByTrainId" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+		tab_train.trainId,
+		tab_train.trainName,
+		tab_group.groupId,
+		tab_group.zigbeeId,
+		tab_group.zigbeeKey,
+		tab_group.begStationId,
+		begStation.stationName as begStationName,
+		tab_group.endStationId,
+		endStation.stationName as endStationName,
+		tab_group.createTime,
+		tab_group.totalCarNum,
+		tab_group.groupState
+		FROM
+		tab_train
+		LEFT JOIN tab_group ON tab_group.groupId = tab_train.lastGroupId
+		LEFT JOIN tab_station begStation ON tab_group.begStationId =
+		begStation.stationId
+		LEFT JOIN tab_station endStation ON tab_group.endStationId =
+		endStation.stationId
+		WHERE
+		1 = 1
+		<if test="trainId != null and trainId > 0">
+			AND tab_train.trainId = #{trainId}
+		</if>
+	</select>
+	<select id="getTrainByTrainName" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+		tab_train.trainId,
+		tab_train.trainName,
+		tab_group.groupId,
+		tab_group.zigbeeId,
+		tab_group.zigbeeKey,
+		tab_group.begStationId,
+		begStation.stationName as begStationName,
+		tab_group.endStationId,
+		endStation.stationName as endStationName,
+		tab_group.createTime,
+		tab_group.totalCarNum,
+		tab_group.groupState
+		FROM
+		tab_train
+		LEFT JOIN tab_group ON tab_group.groupId = tab_train.lastGroupId
+		LEFT JOIN tab_station begStation ON tab_group.begStationId =
+		begStation.stationId
+		LEFT JOIN tab_station endStation ON tab_group.endStationId =
+		endStation.stationId
+		WHERE
+		1 = 1
+		<if test="trainName != null and trainName != '' ">
+			AND tab_train.trainName = #{trainName}
+		</if>
+	</select>
+	<!-- 查询列车序号：车厢底号 -->
+	<select id="getCarsByTrainId" resultType="com.cnmts.traffic.bean.Car">
+		SELECT
+			tab_car.carId,
+			tab_car.carNo,
+			tab_group_car.carSort
+		FROM
+			tab_car
+		LEFT JOIN tab_group_car ON tab_car.carId = tab_group_car.carId
+		LEFT JOIN tab_group ON tab_group.groupId = tab_group_car.groupId
+		WHERE 1 = 1
+		<if test="trainId != null and trainId > 0">
+			AND tab_group.trainId = #{trainId}
+		</if>
+			
+	</select>
+	<!-- 查询列车序号：车厢底号 -->
+	<select id="getAllCars" resultType="com.cnmts.traffic.bean.Car">
+		SELECT
+			tab_car.carId,
+			tab_car.carNo,
+			tab_group_car.carSort
+		FROM
+			tab_car
+		LEFT JOIN tab_group_car ON tab_car.carId = tab_group_car.carId
+		LEFT
+		JOIN tab_group ON tab_group.groupId = tab_group_car.groupId
+		WHERE 1 = 1
+		AND tab_group.trainId = #{trainId}
+	</select>
+	<!-- 模糊查询车次 -->
+	<select id="likeTrainName" resultType="com.cnmts.traffic.bean.Train">
+		SELECT
+		 	tab_train.trainName,
+		    tab_train.trainId
+		FROM
+			tab_train
+		WHERE 1 = 1
+		<if test="trainName != null and trainName != '' ">
+			AND tab_train.trainName LIKE CONCAT('%',#{trainName},'%')
+		</if>
+	</select>
+
+</mapper>

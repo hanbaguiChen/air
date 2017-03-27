@@ -1,0 +1,11 @@
+package com.cnmts.data.dao;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cnmts.traffic.bean.GroupCar;
+
+public interface NativeDataMapper {
+
+	GroupCar getGroupCarByCarNo(@Param("carNo") String carNo);
+
+}

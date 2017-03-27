@@ -1,0 +1,46 @@
+package com.cnmts.alarm.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cnmts.alarm.bean.Alarm;
+import com.cnmts.alarm.dao.AlarmMapper;
+import com.cnmts.system.bean.User;
+import com.cnmts.traffic.bean.Train;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+@Service
+@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, readOnly = true)
+public class AlarmService {
+
+	@Autowired
+	private AlarmMapper alarmMapper;
+
+	/**
+	 * 分页查询报警信息列表
+	 * @author 陈洁
+	 * @date 2017年1月12日
+	 * @param page
+	 * @param search
+	 * @return
+	 */
+	public PageInfo<Alarm> getAlarmListByPage(PageInfo<Alarm> page, Map<String, Object> search) {
+		PageHelper.startPage(page.getPageNum(), page.getPageSize());
+		List<Alarm> alarmList = alarmMapper.getAlarmListByPage(search);
+		page = new PageInfo<Alarm>(alarmList);
+		return page;
+	}
+	
+	@Transactional(readOnly = false)
+	public void updateAlarmState(Alarm alarm) {
+		alarmMapper.updateAlarmState(alarm);
+	}
+
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.baseinfo.dao.GroupMapper">
+	
+	<!-- 查询编组列表 -->
+	<select id="getGroupList" resultType="com.cnmts.traffic.bean.Group">
+		SELECT
+			tab_group.groupId,
+			tab_group.trainId,
+			tab_group.createTime,
+			tab_group.zigbeeId,
+			tab_group.zigbeeKey,
+			tab_group.begStationId,
+			tab_group.endStationId,
+			tab_group.groupState,
+			tab_group.plaitSetState,
+			tab_group.untieSetState,
+			tab_group.opUserId,
+			tab_group.totalCarNum
+		FROM
+			tab_group
+		WHERE
+			1 = 1
+		<if test="begTime!=null">
+			AND tab_group.createTime >=#{begTime}
+		</if>
+		<if test="endTime!=null">
+			AND #{endTime} >= tab_group.createTime
+		</if>
+	</select>
+</mapper>

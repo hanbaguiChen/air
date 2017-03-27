@@ -1,0 +1,12 @@
+package com.cnmts.baseinfo.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cnmts.traffic.bean.Car;
+
+public interface CarMapper {
+
+	List<Car> getCarListByPage(Map<String, Object> search);
+
+}

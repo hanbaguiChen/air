@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cnmts.system.dao.RoleMapper">
+
+	<resultMap id="roleMap" type="com.cnmts.system.bean.Role">
+		<id property="roleId" column="roleId"/>
+	    <result property="roleName" column="roleName"/>
+	    <result property="description" column="description"/>
+	    <collection  property="privileges" ofType="com.cnmts.system.bean.Privilege">
+			<id property="privilegeId" column="privilegeId"/>
+			<result property="privilegeName" column="privilegeName"/>
+			<result property="parentId" column="parentId"/>
+			<result property="urlLink" column="urlLink"/>
+			<result property="privilegeType" column="privilegeType"/>
+			<result property="privilegeSort" column="privilegeSort"/>
+	    </collection>
+	</resultMap>
+	
+	<!-- 分页查询角色 -->
+	<select id="getRoleListByPage" resultMap="roleMap">
+		SELECT
+			sys_role.roleId,
+			sys_role.roleName,
+			sys_role.description
+		FROM
+			sys_role
+		WHERE
+			1 = 1
+		<if test="roleName!=null and roleName!=''">
+			AND sys_role.roleName LIKE CONCAT('%',#{roleName},'%') 
+		</if>
+		order by sys_role.roleId
+	</select>
+	
+	<!-- 更新角色基本信息 -->
+	<update id="updateRole">
+		UPDATE sys_role SET roleName=#{roleName},description=#{description} WHERE roleId=#{roleId}
+	</update>
+	
+	<!-- 添加角色 -->
+	<insert id="addRole">
+		INSERT INTO sys_role(
+			roleName,
+			description
+		) VALUES (
+			#{roleName},
+			#{description}
+		)
+	</insert>
+	
+	<select id="getRoleById" resultType="com.cnmts.system.bean.Role">
+		SELECT
+			sys_role.roleId,
+			sys_role.roleName,
+			sys_role.description
+		FROM
+			sys_role
+		WHERE
+			1 = 1
+		AND sys_role.roleId = #{roleId}
+	</select>
+
+	<!-- 删除角色 -->
+	<delete id="deleteRole">
+		DELETE FROM sys_role WHERE roleId = #{roleId}
+	</delete>
+	
+	<!-- 查询角色权限 -->
+	<select id="getPrivilegeByRoleId" resultType="com.cnmts.system.bean.Privilege">
+		SELECT
+			sys_privilege.privilegeId,
+			sys_privilege.privilegeName,
+			sys_privilege.parentId,
+			sys_privilege.urlLink,
+			sys_privilege.privilegeSort,
+			sys_privilege.privilegeType,
+			IF (sys_role_privilege.pId IS NULL,0,1) AS isHave,
+			sys_privilege.createTime
+		FROM
+			sys_privilege
+		LEFT JOIN sys_role_privilege ON sys_role_privilege.rId = #{roleId}
+		AND sys_role_privilege.pId = sys_privilege.privilegeId
+		ORDER BY
+			sys_privilege.privilegeSort
+	</select>
+	
+	<!-- 删除角色所有 -->
+	<delete id="deleteRolePrivilege">
+		DELETE
+		FROM
+			sys_role_privilege
+		WHERE
+			rId = #{roleId}
+	</delete>
+	
+	<!-- 保存角色权限关联 -->
+	<insert id="saveRolePrivilege">
+		INSERT INTO sys_role_privilege (
+			rId, 
+			pId
+		) VALUES (
+			#{rId},
+			#{pId}
+		)
+	</insert>
+	
+	<!-- 查询所有角色 -->
+	<select id="getAllRole" resultType="com.cnmts.system.bean.Role">
+		SELECT
+			sys_role.roleId,
+			sys_role.roleName,
+			sys_role.description
+		FROM
+			sys_role
+		WHERE
+			1 = 1
+		<if test="roleName != null and roleName != '' ">
+			AND sys_role.roleName LIKE CONCAT('%', #{roleName}, '%')
+		</if>
+	</select>
+	
+	<select id="checkRoleUser" resultType="int">
+	   select count(1) from sys_user where roleId=#{roleId}
+	</select>
+	
+</mapper>

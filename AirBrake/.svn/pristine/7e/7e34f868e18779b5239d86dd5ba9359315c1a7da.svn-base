@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cnmts.baseinfo.dao.CarMapper">
+
+	<!-- 查询车厢列表 -->
+	<select id="getCarListByPage" resultType="com.cnmts.traffic.bean.Car">
+		SELECT
+			tab_car.carId,
+			tab_car.carNo,
+			tab_car.IMEI,
+			tab_car.phoneNum,
+			tab_train.trainId,
+			IF (tab_train.trainId IS NOT NULL,1,2) AS carState,
+			tab_train.trainName,
+			tab_group_car.carSort
+		FROM
+			tab_car
+		LEFT JOIN tab_group_car ON tab_group_car.carId = tab_car.carId
+		LEFT JOIN tab_train ON tab_train.lastGroupId = tab_group_car.groupId
+		WHERE
+			1 = 1
+		<if test="deleteStatus > 0">
+			AND tab_car.deleteStatus = #{deleteStatus}
+		</if>
+		<if test="carNo != null and carNo != '' ">
+			AND tab_car.carNo LIKE CONCAT('%', '#{carNo}, '%')
+		</if>
+		<if test="IMEI != null and IMEI != '' ">
+			AND tab_car.IMEI LIKE CONCAT('%', #{IMEI}, '%')
+		</if>
+		<if test="phoneNum != null and phoneNum != '' ">
+			AND tab_car.phoneNum LIKE CONCAT('%', #{phoneNum}, '%')
+		</if>
+		<if test="carState == 1">
+			AND tab_train.trainId IS NOT NULL
+		</if>
+		<if test="carState == 2">
+			AND tab_train.trainId IS NULL
+		</if>
+		ORDER BY
+			tab_car.carNo
+	</select>
+	
+	<select id="getCarByCarNo" resultType="com.cnmts.traffic.bean.Car">
+		SELECT
+			tab_car.carId,
+			tab_car.carNo,
+			tab_car.IMEI,
+			tab_car.phoneNum,
+			tab_car.deleteStatus
+		FROM
+			tab_car
+		WHERE
+			1 = 1
+		AND tab_car.carNo = #{carNo}
+	</select>
+
+	<insert id="addCar">
+		INSERT INTO tab_car (
+			carNo,
+			IMEI,
+			phoneNum,
+			deleteStatus
+		) VALUES (
+			#{carNo},
+			#{IMEI},
+			#{phoneNum},
+			#{deleteStatus}
+		)
+	</insert>
+	
+	<update id="updateCar">
+		UPDATE tab_car
+		SET IMEI = #{IMEI},
+		 phoneNum = #{phoneNum}
+		WHERE
+			carId = #{carId}
+	</update>
+</mapper>

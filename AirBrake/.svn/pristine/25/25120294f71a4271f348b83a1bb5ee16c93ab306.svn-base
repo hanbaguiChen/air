@@ -1,0 +1,22 @@
+package com.cnmts.data.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cnmts.data.bean.AlarmData;
+import com.cnmts.data.bean.DataBatch;
+import com.cnmts.data.bean.SensorDataBatch;
+import com.cnmts.traffic.bean.GroupCar;
+
+public interface NativeDataMapper {
+
+	GroupCar getGroupCarByCarNo(@Param("carNo") String carNo);
+
+	void saveAlarm(AlarmData alarmData);
+
+	void saveBatchData(DataBatch dataBatch);
+
+	void saveSensorData(List<SensorDataBatch> dataBatchs);
+
+}
